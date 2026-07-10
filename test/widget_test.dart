@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:formfrontend/main.dart';
+import 'package:formfrontend/app/app.dart';
 
 void main() {
   testWidgets('Smoke test for A.D.I.Y.O.G.I App', (WidgetTester tester) async {

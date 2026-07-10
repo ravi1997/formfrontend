@@ -1,7 +1,7 @@
 ---
 version: alpha
-name: "Sevora Portfolio"
-description: "Sevora is a designer portfolio template built in Framer with a refined monochrome-first aesthetic. The design pairs a bold serif headline font (Lora) with a clean sans-serif body (Instrument Sans) to create strong typographic hierarchy. The palette is almost entirely achromatic. near-black, off-white, and a graduated grey scale. with no vivid accent color in the primary UI. Rounded pill buttons, layered card shadows, and generous whitespace define the spatial rhythm. The hero section features a large B&W portrait photograph, stat counters, and dual CTAs, establishing a confident personal brand tone."
+name: "A.D.I.Y.O.G.I UI System"
+description: "A.D.I.Y.O.G.I uses a calm monochrome-first interface system for structured intelligence workflows. The visual language pairs a serif display face for emphasis with a clean sans-serif body face for clarity. The palette stays near-black, off-white, and graduated grey with no vivid accent colors in the primary UI. Rounded controls, layered card depth, and generous whitespace define the spatial rhythm. The interface should feel precise, neutral, and structured."
 colors:
   pure-white: "#ffffff"
   surface-subtle: "#edeef1"
@@ -94,28 +94,30 @@ spacing:
 
 ## Overview
 
-Sevora is a designer portfolio template built in Framer with a refined monochrome-first aesthetic. The design pairs a bold serif headline font (Lora) with a clean sans-serif body (Instrument Sans) to create strong typographic hierarchy. The palette is almost entirely achromatic. near-black, off-white, and a graduated grey scale. with no vivid accent color in the primary UI. Rounded pill buttons, layered card shadows, and generous whitespace define the spatial rhythm. The hero section features a large B&W portrait photograph, stat counters, and dual CTAs, establishing a confident personal brand tone.
+A.D.I.Y.O.G.I is a structured intelligence system. The UI should support the flow from input capture to transformation to insight. The visual language is monochrome, restrained, and compositional. It should emphasize hierarchy, clarity, and operational calm.
+
+The interface is not decorative. It should make the lifecycle of data legible.
 
 **Signature traits:**
-- Dual typeface system: Pairs Lora and Instrument Sans across the type hierarchy.
-- Soft, rounded geometry: Generous corner rounding up to 999px.
-- Layered elevation: Depth comes from 4 validated shadow tokens.
+- Dual typeface system: Lora for emphasis, Instrument Sans for functional UI text.
+- Soft, rounded geometry: Controls and surfaces use consistent radius tokens.
+- Layered elevation: Depth comes from a small set of validated shadow tokens.
 
 ## Colors
 
 The palette uses 9 validated color tokens across 1 theme profile. Semantic roles stay attached to observed usage so generation agents can choose accents without inventing new color meaning.
 
 **Semantic naming:**
-- **content-text** maps to `ink-black`: Role "text" is grounded by usage context "Primary heading and body text color; used on h1, h2, and key UI labels".
-- **surface-background** maps to `surface-white`: Role "background" is grounded by usage context "Page background and hero card surface fill".
-- **action-background** maps to `pure-white`: Role "background" is grounded by usage context "Card surfaces, button fills, and inset highlight layers".
-- **action-text** maps to `charcoal`: Role "text" is grounded by usage context "Primary CTA button fill ('Start a project', 'View projects') and dark card backgrounds".
+- **content-text** maps to `ink-black`: Primary text color for headings, body copy, and key labels.
+- **surface-background** maps to `surface-white`: Base page background and large container fill.
+- **action-background** maps to `pure-white`: Card surfaces, button fills, and inset highlight layers.
+- **action-text** maps to `charcoal`: Primary action text and dark surface text.
 
 ### Text Scale
-- **Charcoal** (#1b1b21): Primary CTA button fill ('Start a project', 'View projects') and dark card backgrounds. Role: text. {authored: rgb(27, 27, 33), space: rgb}
-- **Grey Body** (#61646b): Body copy, nav link text, and descriptive paragraphs. Role: text. {authored: rgb(97, 100, 107), space: rgb}
+- **Charcoal** (#1b1b21): Primary action text and dark card backgrounds. Role: text. {authored: rgb(27, 27, 33), space: rgb}
+- **Grey Body** (#61646b): Body copy, navigation text, and descriptive paragraphs. Role: text. {authored: rgb(97, 100, 107), space: rgb}
 - **Grey Muted** (#94979e): Muted captions, stat labels, and secondary descriptors. Role: text. {authored: rgb(148, 151, 158), space: rgb}
-- **Ink Black** (#121218): Primary heading and body text color; used on h1, h2, and key UI labels. Role: text. {authored: rgb(18, 18, 24), space: rgb}
+- **Ink Black** (#121218): Primary heading and body text color; used on headings and key UI labels. Role: text. {authored: rgb(18, 18, 24), space: rgb}
 - **Slate Mid** (#44454c): Secondary text, subheadings, and muted UI labels. Role: text. {authored: rgb(68, 69, 76), space: rgb}
 
 ### Interactive
@@ -124,36 +126,36 @@ The palette uses 9 validated color tokens across 1 theme profile. Semantic roles
 ### Surface & Shadows
 - **Pure White** (#ffffff): Card surfaces, button fills, and inset highlight layers. Role: background. {authored: rgb(255, 255, 255), space: rgb, alpha: 0}
 - **Surface Subtle** (#edeef1): Ghost button background and subtle section fills. Role: background. {authored: rgb(237, 238, 241), space: rgb, alpha: 0}
-- **Surface White** (#f7f7f8): Page background and hero card surface fill. Role: background. {authored: rgb(247, 247, 248), space: rgb}
+- **Surface White** (#f7f7f8): Page background and large container fill. Role: background. {authored: rgb(247, 247, 248), space: rgb}
 
 ## Typography
 
-Typography uses Lora, Instrument Sans, Inter across extracted hierarchy roles. Keep hierarchy mapped to these token rows before adding decorative type styles.
+Typography uses Lora, Instrument Sans, and Inter across the hierarchy. Keep the mapping stable before adding any decorative type styles.
 
-Mixes Lora and Instrument Sans and Inter for visual contrast. Weight range spans semi-bold, regular, medium. Sizes range from 13px to 56px.
+The display system uses Lora for structure and emphasis. The body system uses Instrument Sans for readability.
 
 ### Font Roles
 - **Headline Font**: Lora
-- **Body Font**: Lora
+- **Body Font**: Instrument Sans
 
 ### Type Scale Evidence
 | Role | Font | Size | Weight | Line Height | Letter Spacing | Stack / Features | Notes |
 |------|------|------|--------|-------------|----------------|------------------|-------|
-| Hero h1 headline — 'Design Better / Faster Smarter' | Lora | 56px | 600 | 64px | -1.12px | Lora, Lora Placeholder, serif; features: "blwf", "cv03", "cv04", "cv09", "cv11" | Extracted token |
-| Section-level h2 headings | Lora | 36px | 600 | 48px | -0.72px | Lora, Lora Placeholder, serif; features: "blwf", "cv03", "cv04", "cv09", "cv11" | Extracted token |
+| Hero headline | Lora | 56px | 600 | 64px | -1.12px | Lora, Lora Placeholder, serif; features: "blwf", "cv03", "cv04", "cv09", "cv11" | Extracted token |
+| Section headings | Lora | 36px | 600 | 48px | -0.72px | Lora, Lora Placeholder, serif; features: "blwf", "cv03", "cv04", "cv09", "cv11" | Extracted token |
 | Card and callout headings | Lora | 32px | 600 | 48px | normal | Lora, Lora Placeholder, serif; features: "blwf", "cv03", "cv04", "cv09", "cv11" | Extracted token |
-| Primary body copy and hero description paragraph | Instrument Sans | 16px | 400 | 24px | -0.32px | Instrument Sans, Instrument Sans Placeholder, sans-serif; features: "blwf", "cv03", "cv04", "cv09", "cv11" | Extracted token |
-| Secondary body text, card descriptions | Instrument Sans | 14px | 400 | 20px | -0.14px | Instrument Sans, Instrument Sans Placeholder, sans-serif; features: "blwf", "cv03", "cv04", "cv09", "cv11" | Extracted token |
+| Primary body copy | Instrument Sans | 16px | 400 | 24px | -0.32px | Instrument Sans, Instrument Sans Placeholder, sans-serif; features: "blwf", "cv03", "cv04", "cv09", "cv11" | Extracted token |
+| Secondary body text | Instrument Sans | 14px | 400 | 20px | -0.14px | Instrument Sans, Instrument Sans Placeholder, sans-serif; features: "blwf", "cv03", "cv04", "cv09", "cv11" | Extracted token |
 | Navigation links, button labels, and UI labels | Instrument Sans | 14px | 500 | 20px | -0.14px | Instrument Sans, Instrument Sans Placeholder, sans-serif; features: "blwf", "cv03", "cv04", "cv09", "cv11" | Extracted token |
 | Stat numbers and prominent callout labels | Instrument Sans | 20px | 500 | 30px | -0.8px | Instrument Sans, Instrument Sans Placeholder, sans-serif; features: "blwf", "cv03", "cv04", "cv09", "cv11" | Extracted token |
 | Sub-section labels and card titles | Instrument Sans | 18px | 500 | 28px | -0.36px | Instrument Sans, Instrument Sans Placeholder, sans-serif; features: "blwf", "cv03", "cv04", "cv09", "cv11" | Extracted token |
-| Badge labels, Framer badge, and micro UI text | Inter | 13px | 500 | 15.6px | normal | Inter, Inter Placeholder, sans-serif | Extracted token |
+| Badge labels and micro UI text | Inter | 13px | 500 | 15.6px | normal | Inter, Inter Placeholder, sans-serif | Extracted token |
 
 ## Layout
 
 Responsive system uses 2 breakpoint tier(s): mobile, tablet.
 
-This system uses a 8px base grid with scale values 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 32, 40, 48, 64, 88, 96.
+This system uses an 8px base grid with scale values 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 32, 40, 48, 64, 88, 96.
 
 ### Responsive Strategy
 - **mobile (<= 809.98px)**: Constrain layout for small viewports and prioritize vertical stacking.
@@ -232,7 +234,7 @@ Shape language maps directly to rounded tokens. Keep component corners consisten
 
 ## Do's and Don'ts
 
-Guardrails protect Dual typeface system, Soft, rounded geometry, Layered elevation without adding unsupported visual claims.
+Guardrails protect the monochrome palette, dual typeface system, and layered elevation without adding unsupported visual claims.
 
 | Do | Don't |
 |----|---------|
@@ -252,13 +254,9 @@ Guardrails protect Dual typeface system, Soft, rounded geometry, Layered elevati
 ## Agent Prompt Guide
 
 ### Example Component Prompts
-- Create button component using validated primary color role and spacing tokens.
-- Create card component with mapped radius role and evidence-backed elevation.
-- Create form input component using inferred typography hierarchy and border roles.
+- Create a button component using the validated primary color role and spacing tokens.
+- Create a card component using mapped radius role and evidence-backed elevation.
+- Create a form input component using inferred typography hierarchy and border roles.
 
 ### Iteration Guide
 1. Start with extracted palette and typography roles only.
-2. Map spacing and radius directly from token tables before visual polish.
-3. Apply component patterns one section at a time and compare against source intent.
-4. Keep elevation claims tied to explicit evidence in output.
-5. Iterate with smallest diffs and re-check section hierarchy after each change.

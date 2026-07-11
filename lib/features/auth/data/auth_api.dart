@@ -34,9 +34,9 @@ class AuthApi {
         'name': name,
         'email': email,
         'password': password,
-        'designation':? designation,
-        'phone':? phone,
-        'device_name':? deviceName,
+        ...(designation != null ? {'designation': designation} : const <String, dynamic>{}),
+        ...(phone != null ? {'phone': phone} : const <String, dynamic>{}),
+        ...(deviceName != null ? {'device_name': deviceName} : const <String, dynamic>{}),
       },
     );
   }

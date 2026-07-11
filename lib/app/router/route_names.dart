@@ -1,0 +1,35 @@
+class RouteNames {
+  static const String login = '/login';
+  static const String register = '/register';
+  static const String main = '/';
+  static const String dashboard = '/dashboard';
+  static const String projects = '/projects';
+  static const String projectDetail = '/projects/detail';
+  static const String forms = '/forms';
+  static const String formDetail = '/forms/detail';
+  static const String formVersions = '/forms/versions';
+  static const String formEffectiveUi = '/forms/effective-ui';
+  static const String sections = '/sections';
+  static const String sectionDetail = '/sections/detail';
+  static const String sectionVersions = '/sections/versions';
+  static const String questions = '/questions';
+  static const String questionDetail = '/questions/detail';
+  static const String questionVersions = '/questions/versions';
+  static const String choices = '/choices';
+  static const String choiceEdit = '/choices/edit';
+  static const String conditions = '/conditions';
+  static const String submit = '/responses/submit';
+  static const String actions = '/responses/actions';
+  static const String workflow = '/workflow';
+  static const String health = '/health';
+  static const String readiness = '/readiness';
+  static const String metrics = '/metrics';
+  static const String schema = '/schema';
+  static const String themes = '/ui/themes';
+  static const String layouts = '/ui/layouts';
+  static const String admin = '/admin';
+  static const String adminConfigHealth = '/admin/config-health';
+  static const String adminAuditLogs = '/admin/audit-logs';
+  static const String adminRateLimits = '/admin/rate-limits';
+  static const String adminUserSessions = '/admin/user-sessions';
+}

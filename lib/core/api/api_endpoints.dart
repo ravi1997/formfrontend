@@ -60,6 +60,7 @@ class ApiEndpoints {
   // Actions
   static String triggerAction(String projectUuid, String formUuid, String sectionUuid, String questionUuid, String actionId) => '/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions/$questionUuid/actions/$actionId/trigger';
   static String actionExecutions(String projectUuid, String formUuid, String responseUuid) => '/projects/$projectUuid/forms/$formUuid/responses/$responseUuid/action-executions';
+  static String publicResponses(String projectUuid, String formUuid) => '/public/projects/$projectUuid/forms/$formUuid/responses';
 
   // Conditions
   static const String conditionsMetadata = '/conditions/metadata';

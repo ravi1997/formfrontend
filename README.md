@@ -1,17 +1,57 @@
 # formfrontend
 
-A new Flutter project.
+Flutter frontend for the backend in `/home/ravi/workspace/new/form`.
 
-## Getting Started
+## Local setup
 
-This project is a starting point for a Flutter application.
+1. Start the backend first.
+2. Set `API_BASE_URL` in `assets/.env` to the backend API root, for example:
 
-A few resources to get you started if this is your first Flutter project:
+```env
+API_BASE_URL=http://localhost:5000/api/v1
+```
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+3. Run the app with Flutter:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter pub get
+flutter run
+```
+
+## Routes
+
+The app shell exposes backend-domain tabs and named routes for:
+
+- `/`
+- `/dashboard`
+- `/projects`
+- `/forms`
+- `/sections`
+- `/questions`
+- `/choices`
+- `/responses/submit`
+- `/responses/actions`
+- `/workflow`
+- `/health`
+- `/readiness`
+- `/metrics`
+- `/schema`
+- `/ui/themes`
+- `/ui/layouts`
+- `/admin`
+- `/admin/config-health`
+- `/admin/audit-logs`
+- `/admin/rate-limits`
+- `/admin/user-sessions`
+
+## Tests
+
+```bash
+flutter test
+```
+
+## Notes
+
+- The app reads runtime config from `assets/.env`.
+- API requests are routed through `lib/core/api/api_client.dart`.
+- Auth/session state is bootstrapped from secure token storage.

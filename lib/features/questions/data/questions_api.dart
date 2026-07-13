@@ -11,8 +11,12 @@ class QuestionsApi {
     required String projectUuid,
     required String formUuid,
     required String sectionUuid,
-  }) {
-    return _client.get(ApiEndpoints.questions(projectUuid, formUuid, sectionUuid));
+  }) async {
+    final result = await _client.get<Map<String, dynamic>>(ApiEndpoints.questions(projectUuid, formUuid, sectionUuid));
+    return result.when(
+      success: (data) => ApiResult.success(data['items'] as List<dynamic>? ?? []),
+      failure: (error) => ApiResult.failure(error),
+    );
   }
 
   Future<ApiResult<Map<String, dynamic>>> createQuestion({
@@ -60,7 +64,11 @@ class QuestionsApi {
     required String formUuid,
     required String sectionUuid,
     required String questionUuid,
-  }) {
-    return _client.get(ApiEndpoints.questionVersions(projectUuid, formUuid, sectionUuid, questionUuid));
+  }) async {
+    final result = await _client.get<Map<String, dynamic>>(ApiEndpoints.questionVersions(projectUuid, formUuid, sectionUuid, questionUuid));
+    return result.when(
+      success: (data) => ApiResult.success(data['items'] as List<dynamic>? ?? []),
+      failure: (error) => ApiResult.failure(error),
+    );
   }
 }

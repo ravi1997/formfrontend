@@ -211,7 +211,7 @@ class FakeSystemApi extends SystemApi {
   Future<ApiResult<Map<String, dynamic>>> metrics() async => ApiResult.success(<String, dynamic>{});
 
   @override
-  Future<ApiResult<Map<String, dynamic>>> schemaEcho() async => ApiResult.success(<String, dynamic>{});
+  Future<ApiResult<Map<String, dynamic>>> schemaEcho({String? uuid}) async => ApiResult.success(<String, dynamic>{});
 }
 
 class FakeUiTemplatesApi extends UiTemplatesApi {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
+import 'package:provider/provider.dart';
+import 'package:formfrontend/core/state/auth_state.dart';
 import 'package:formfrontend/core/config/theme/theme_exports.dart';
 import 'package:formfrontend/features/dashboard/presentation/components/form_layer.dart';
 import 'package:formfrontend/features/dashboard/presentation/components/logic_layer.dart';
@@ -23,6 +25,8 @@ class _LayerDescriptor {
 }
 
 class DashboardScreen extends StatefulWidget {
+  static final ValueNotifier<int> activeLayerNotifier = ValueNotifier<int>(0);
+
   const DashboardScreen({super.key});
 
   @override
@@ -31,6 +35,28 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedLayerIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    DashboardScreen.activeLayerNotifier.addListener(_onActiveLayerChanged);
+    _selectedLayerIndex = DashboardScreen.activeLayerNotifier.value;
+  }
+
+  @override
+  void dispose() {
+    DashboardScreen.activeLayerNotifier.removeListener(_onActiveLayerChanged);
+    _inputController.dispose();
+    super.dispose();
+  }
+
+  void _onActiveLayerChanged() {
+    if (mounted) {
+      setState(() {
+        _selectedLayerIndex = DashboardScreen.activeLayerNotifier.value;
+      });
+    }
+  }
 
   // Form State
   final _formKey = GlobalKey<FormState>();
@@ -115,6 +141,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: isMobile
+            ? null
+            : Builder(
+                builder: (context) => IconButton(
+                  icon: const Icon(Icons.menu),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                ),
+              ),
         title: Row(
           children: [
             Container(
@@ -153,6 +189,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
+          IconButton(
+            icon: const Icon(Icons.logout_rounded),
+            tooltip: 'Logout',
+            onPressed: () {
+              context.read<AuthStateNotifier>().logout();
+            },
+          ),
+          SizedBox(width: context.space8),
         ],
       ),
       body: isMobile
@@ -162,130 +206,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Expanded(child: _buildMainContent()),
               ],
             )
-          : Row(
-              children: [
-                _buildSidebar(),
-                const VerticalDivider(
-                  width: 1,
-                  thickness: 1,
-                  color: AppColors.borderLight,
-                ),
-                Expanded(child: _buildMainContent()),
-              ],
-            ),
+          : _buildMainContent(),
     );
   }
 
-  Widget _buildSidebar() {
-    return Container(
-      width: 260,
-      color: AppColors.pureWhite,
-      padding: EdgeInsets.all(context.space24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'LIFECYCLE LAYERS',
-            style: context.uiMicro.copyWith(
-              color: AppColors.greyMuted,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          SizedBox(height: context.space16),
-          Expanded(
-            child: ListView.separated(
-              itemCount: _layers.length,
-              separatorBuilder: (_, index) => SizedBox(height: context.space8),
-              itemBuilder: (context, index) {
-                final layer = _layers[index];
-                return _buildSidebarNavItem(
-                  index,
-                  layer.title,
-                  layer.icon,
-                  layer.subtitle,
-                );
-              },
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(context.space12),
-            decoration: AppCardStyles.flatDecoration,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Core Principle',
-                  style: context.labelMedium.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: context.space4),
-                Text(
-                  'Data is a structured flow, transforming raw awareness into intelligence.',
-                  style: context.bodyMedium,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildSidebarNavItem(
-    int index,
-    String title,
-    IconData icon,
-    String subtitle,
-  ) {
-    final isSelected = _selectedLayerIndex == index;
-    return InkWell(
-      onTap: () => setState(() => _selectedLayerIndex = index),
-      borderRadius: context.borderMd,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.space12,
-          vertical: context.space12,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColors.surfaceSubtle : Colors.transparent,
-          borderRadius: context.borderMd,
-        ),
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? AppColors.charcoal : AppColors.greyBody,
-              size: 20,
-            ),
-            SizedBox(width: context.space12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: context.labelMedium.copyWith(
-                      fontWeight: isSelected
-                          ? FontWeight.w600
-                          : FontWeight.w400,
-                      color: isSelected
-                          ? AppColors.inkBlack
-                          : AppColors.greyBody,
-                    ),
-                  ),
-                  Text(
-                    subtitle,
-                    style: context.uiMicro.copyWith(color: AppColors.greyMuted),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   Widget _buildMobileNavBar() {
     return Container(

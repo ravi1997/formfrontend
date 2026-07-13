@@ -11,9 +11,23 @@ class CurrentUserState extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool get isAdmin => _user?.roles.contains('admin') ?? false;
-  bool get isSuperAdmin => _user?.roles.contains('super_admin') ?? false;
-  bool get isOperator => _user?.roles.contains('operator') ?? false;
+  bool _checkRole(String target) {
+    if (_user == null) return false;
+    final normalizedTarget = target.toLowerCase().replaceAll('role_', '').replaceAll('-', '_');
+    return _user!.roles.any((r) {
+      final normalizedRole = r.toLowerCase().replaceAll('role_', '').replaceAll('-', '_');
+      return normalizedRole == normalizedTarget || 
+             (normalizedTarget == 'super_admin' && normalizedRole == 'superadmin') ||
+             (normalizedTarget == 'superadmin' && normalizedRole == 'super_admin');
+    });
+  }
 
-  bool hasRole(String role) => _user?.roles.contains(role) ?? false;
+  bool get isAdmin => _checkRole('admin');
+  bool get isSuperAdmin {
+    if (_user == null) return false;
+    return _user!.isSuperAdmin || _checkRole('super_admin');
+  }
+  bool get isOperator => _checkRole('operator');
+
+  bool hasRole(String role) => _checkRole(role);
 }

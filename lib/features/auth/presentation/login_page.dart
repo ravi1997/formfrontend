@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:formfrontend/core/config/theme/theme_exports.dart';
 import 'package:formfrontend/core/state/auth_state.dart';
+import 'package:formfrontend/core/storage/secure_token_storage.dart';
 import 'package:formfrontend/features/auth/presentation/register_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -16,6 +17,29 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _rememberMe = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadRememberedEmail();
+    });
+  }
+
+  Future<void> _loadRememberedEmail() async {
+    final storage = context.read<SecureTokenStorage>();
+    final remember = await storage.getRememberMe();
+    if (remember) {
+      final email = await storage.getSavedEmail();
+      if (email != null && mounted) {
+        setState(() {
+          _rememberMe = true;
+          _emailController.text = email;
+        });
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -26,9 +50,15 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _submit() async {
     if (_formKey.currentState!.validate()) {
+      final email = _emailController.text.trim();
+      final storage = context.read<SecureTokenStorage>();
       final authState = context.read<AuthStateNotifier>();
+      
+      // Save remember me preference before login is triggered (to avoid unmount issues)
+      await storage.saveRememberMe(remember: _rememberMe, email: email);
+
       final success = await authState.login(
-        email: _emailController.text.trim(),
+        email: email,
         password: _passwordController.text,
       );
 
@@ -144,7 +174,32 @@ class _LoginPageState extends State<LoginPage> {
                       return null;
                     },
                   ),
-                  SizedBox(height: context.space32),
+                  SizedBox(height: context.space16),
+                  Row(
+                    children: [
+                      SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: Checkbox(
+                          value: _rememberMe,
+                          onChanged: (value) {
+                            setState(() {
+                              _rememberMe = value ?? false;
+                            });
+                          },
+                          activeColor: AppColors.charcoal,
+                        ),
+                      ),
+                      SizedBox(width: context.space8),
+                      Text(
+                        'Remember me',
+                        style: context.bodyMedium.copyWith(
+                          color: AppColors.greyBody,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: context.space24),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(

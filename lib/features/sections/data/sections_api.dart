@@ -10,8 +10,12 @@ class SectionsApi {
   Future<ApiResult<List<dynamic>>> listSections({
     required String projectUuid,
     required String formUuid,
-  }) {
-    return _client.get(ApiEndpoints.sections(projectUuid, formUuid));
+  }) async {
+    final result = await _client.get<Map<String, dynamic>>(ApiEndpoints.sections(projectUuid, formUuid));
+    return result.when(
+      success: (data) => ApiResult.success(data['items'] as List<dynamic>? ?? []),
+      failure: (error) => ApiResult.failure(error),
+    );
   }
 
   Future<ApiResult<Map<String, dynamic>>> createSection({
@@ -51,7 +55,11 @@ class SectionsApi {
     required String projectUuid,
     required String formUuid,
     required String sectionUuid,
-  }) {
-    return _client.get(ApiEndpoints.sectionVersions(projectUuid, formUuid, sectionUuid));
+  }) async {
+    final result = await _client.get<Map<String, dynamic>>(ApiEndpoints.sectionVersions(projectUuid, formUuid, sectionUuid));
+    return result.when(
+      success: (data) => ApiResult.success(data['items'] as List<dynamic>? ?? []),
+      failure: (error) => ApiResult.failure(error),
+    );
   }
 }

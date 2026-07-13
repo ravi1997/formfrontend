@@ -32,4 +32,5 @@ class RouteNames {
   static const String adminAuditLogs = '/admin/audit-logs';
   static const String adminRateLimits = '/admin/rate-limits';
   static const String adminUserSessions = '/admin/user-sessions';
+  static const String organisation = '/admin/organisation';
 }

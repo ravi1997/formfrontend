@@ -12,8 +12,12 @@ class ChoicesApi {
     required String formUuid,
     required String sectionUuid,
     required String questionUuid,
-  }) {
-    return _client.get(ApiEndpoints.choices(projectUuid, formUuid, sectionUuid, questionUuid));
+  }) async {
+    final result = await _client.get<Map<String, dynamic>>(ApiEndpoints.choices(projectUuid, formUuid, sectionUuid, questionUuid));
+    return result.when(
+      success: (data) => ApiResult.success(data['items'] as List<dynamic>? ?? []),
+      failure: (error) => ApiResult.failure(error),
+    );
   }
 
   Future<ApiResult<Map<String, dynamic>>> createChoice({

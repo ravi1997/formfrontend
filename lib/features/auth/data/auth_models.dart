@@ -5,6 +5,7 @@ class UserProfile {
   final String? designation;
   final String? phone;
   final List<String> roles;
+  final bool isSuperAdmin;
 
   const UserProfile({
     required this.uuid,
@@ -13,6 +14,7 @@ class UserProfile {
     this.designation,
     this.phone,
     required this.roles,
+    this.isSuperAdmin = false,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -37,6 +39,7 @@ class UserProfile {
       designation: json['designation'] as String?,
       phone: json['phone'] as String?,
       roles: parsedRoles,
+      isSuperAdmin: json['is_super_admin'] as bool? ?? false,
     );
   }
 
@@ -48,6 +51,7 @@ class UserProfile {
       if (designation != null) 'designation': designation,
       if (phone != null) 'phone': phone,
       'roles': roles,
+      'is_super_admin': isSuperAdmin,
     };
   }
 }

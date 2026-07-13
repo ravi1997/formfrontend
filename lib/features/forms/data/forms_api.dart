@@ -7,8 +7,12 @@ class FormsApi {
 
   FormsApi(this._client);
 
-  Future<ApiResult<List<dynamic>>> listForms(String projectUuid) {
-    return _client.get(ApiEndpoints.forms(projectUuid));
+  Future<ApiResult<List<dynamic>>> listForms(String projectUuid) async {
+    final result = await _client.get<Map<String, dynamic>>(ApiEndpoints.forms(projectUuid));
+    return result.when(
+      success: (data) => ApiResult.success(data['items'] as List<dynamic>? ?? []),
+      failure: (error) => ApiResult.failure(error),
+    );
   }
 
   Future<ApiResult<Map<String, dynamic>>> createForm(
@@ -43,8 +47,12 @@ class FormsApi {
   Future<ApiResult<List<dynamic>>> listFormVersions(
     String projectUuid,
     String formUuid,
-  ) {
-    return _client.get(ApiEndpoints.formVersions(projectUuid, formUuid));
+  ) async {
+    final result = await _client.get<Map<String, dynamic>>(ApiEndpoints.formVersions(projectUuid, formUuid));
+    return result.when(
+      success: (data) => ApiResult.success(data['items'] as List<dynamic>? ?? []),
+      failure: (error) => ApiResult.failure(error),
+    );
   }
 
   Future<ApiResult<Map<String, dynamic>>> getEffectiveUi(

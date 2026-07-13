@@ -22,4 +22,23 @@ class AdminApi {
   Future<ApiResult<Map<String, dynamic>>> rateLimitStatus() {
     return _client.get(ApiEndpoints.rateLimitStatus);
   }
+
+  Future<ApiResult<Map<String, dynamic>>> listOrganizations({String? status}) {
+    return _client.get(
+      '/organizations',
+      queryParameters: status != null ? {'status': status} : null,
+    );
+  }
+
+  Future<ApiResult<Map<String, dynamic>>> createOrganization(Map<String, dynamic> data) {
+    return _client.post('/organizations', data: data);
+  }
+
+  Future<ApiResult<Map<String, dynamic>>> updateOrganization(String uuid, Map<String, dynamic> data) {
+    return _client.patch('/organizations/$uuid', data: data);
+  }
+
+  Future<ApiResult<Map<String, dynamic>>> deleteOrganization(String uuid) {
+    return _client.delete('/organizations/$uuid');
+  }
 }

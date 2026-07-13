@@ -19,7 +19,12 @@ class SystemApi {
     return _client.get(ApiEndpoints.metrics);
   }
 
-  Future<ApiResult<Map<String, dynamic>>> schemaEcho() {
-    return _client.post(ApiEndpoints.echoForm);
+  Future<ApiResult<Map<String, dynamic>>> schemaEcho({String? uuid}) {
+    return _client.post(
+      ApiEndpoints.echoForm,
+      data: {
+        'uuid': uuid ?? '00000000-0000-0000-0000-000000000000',
+      },
+    );
   }
 }

@@ -133,6 +133,7 @@ class AppRouter {
       case RouteNames.adminAuditLogs:
       case RouteNames.adminRateLimits:
       case RouteNames.adminUserSessions:
+      case RouteNames.organisation:
         return MaterialPageRoute(
           builder: (_) => MainShell(initialIndex: mainIndex),
           settings: settings,
@@ -187,6 +188,8 @@ class AppRouter {
         return 19;
       case RouteNames.adminUserSessions:
         return 20;
+      case RouteNames.organisation:
+        return 21;
       default:
         return 0;
     }

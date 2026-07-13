@@ -7,8 +7,12 @@ class ProjectsApi {
 
   ProjectsApi(this._client);
 
-  Future<ApiResult<List<dynamic>>> listProjects() {
-    return _client.get(ApiEndpoints.projects);
+  Future<ApiResult<List<dynamic>>> listProjects() async {
+    final result = await _client.get<Map<String, dynamic>>(ApiEndpoints.projects);
+    return result.when(
+      success: (data) => ApiResult.success(data['items'] as List<dynamic>? ?? []),
+      failure: (error) => ApiResult.failure(error),
+    );
   }
 
   Future<ApiResult<Map<String, dynamic>>> createProject(Map<String, dynamic> payload) {
@@ -30,7 +34,11 @@ class ProjectsApi {
     return _client.delete(ApiEndpoints.projectDetail(projectUuid));
   }
 
-  Future<ApiResult<List<dynamic>>> listProjectVersions(String projectUuid) {
-    return _client.get(ApiEndpoints.projectVersions(projectUuid));
+  Future<ApiResult<List<dynamic>>> listProjectVersions(String projectUuid) async {
+    final result = await _client.get<Map<String, dynamic>>(ApiEndpoints.projectVersions(projectUuid));
+    return result.when(
+      success: (data) => ApiResult.success(data['items'] as List<dynamic>? ?? []),
+      failure: (error) => ApiResult.failure(error),
+    );
   }
 }

@@ -132,6 +132,7 @@ void main() {
 
     expect(success, isTrue);
     expect(notifier.status, AuthStatus.unauthenticated);
+    expect(notifier.currentUser, isNull);
     expect(await storage.getAccessToken(), isNull);
     expect(await storage.getRefreshToken(), isNull);
   });

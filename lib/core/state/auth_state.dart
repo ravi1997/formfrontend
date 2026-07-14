@@ -138,7 +138,7 @@ class AuthStateNotifier extends ChangeNotifier {
             );
           }
         } else {
-          _currentUser = authResp.user;
+          _currentUser = null;
           _status = AuthStatus.unauthenticated;
           _errorMessage = null;
         }

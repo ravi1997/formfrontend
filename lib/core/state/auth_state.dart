@@ -125,16 +125,22 @@ class AuthStateNotifier extends ChangeNotifier {
     bool success = false;
     await result.when(
       success: (authResp) async {
-        _currentUser = authResp.user;
-        _status = AuthStatus.authenticated;
         success = true;
-        // Fetch user profile if missing
-        if (_currentUser == null) {
-          final meResult = await _authRepository.getMe();
-          meResult.when(
-            success: (user) => _currentUser = user,
-            failure: (error) => _errorMessage = error.message,
-          );
+        final hasTokens = authResp.accessToken.isNotEmpty && authResp.refreshToken.isNotEmpty;
+        if (hasTokens) {
+          _currentUser = authResp.user;
+          _status = AuthStatus.authenticated;
+          if (_currentUser == null) {
+            final meResult = await _authRepository.getMe();
+            meResult.when(
+              success: (user) => _currentUser = user,
+              failure: (error) => _errorMessage = error.message,
+            );
+          }
+        } else {
+          _currentUser = authResp.user;
+          _status = AuthStatus.unauthenticated;
+          _errorMessage = null;
         }
       },
       failure: (error) {

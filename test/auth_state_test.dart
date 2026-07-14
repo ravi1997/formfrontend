@@ -66,6 +66,26 @@ class _FakeAuthRepository implements AuthRepository {
   Future<ApiResult<void>> logoutAll({bool keepCurrent = true}) async => ApiResult.success(null);
 }
 
+class _ProfileOnlyAuthRepository extends _FakeAuthRepository {
+  _ProfileOnlyAuthRepository(super.meResult);
+
+  @override
+  Future<ApiResult<AuthResponse>> register({
+    required String name,
+    required String email,
+    required String password,
+    String? designation,
+    String? phone,
+    String? deviceName,
+  }) async =>
+      ApiResult.success(
+        const AuthResponse(
+          accessToken: '',
+          refreshToken: '',
+        ),
+      );
+}
+
 void main() {
   test('AuthStateNotifier clears stored credentials on unauthorized me check', () async {
     final storage = SecureTokenStorage(storage: _InMemorySecureStorage());
@@ -86,5 +106,33 @@ void main() {
     expect(await storage.getAccessToken(), isNull);
     expect(await storage.getRefreshToken(), isNull);
     expect(await storage.getSessionUuid(), isNull);
+  });
+
+  test('AuthStateNotifier keeps register-only responses unauthenticated', () async {
+    final storage = SecureTokenStorage(storage: _InMemorySecureStorage());
+    final notifier = AuthStateNotifier(
+      authRepository: _ProfileOnlyAuthRepository(
+        ApiResult.success(
+          const UserProfile(
+            uuid: 'u',
+            email: 'u@example.com',
+            name: 'User',
+            roles: [],
+          ),
+        ),
+      ),
+      tokenStorage: storage,
+    );
+
+    final success = await notifier.register(
+      name: 'User',
+      email: 'user@example.com',
+      password: 'Password123!',
+    );
+
+    expect(success, isTrue);
+    expect(notifier.status, AuthStatus.unauthenticated);
+    expect(await storage.getAccessToken(), isNull);
+    expect(await storage.getRefreshToken(), isNull);
   });
 }

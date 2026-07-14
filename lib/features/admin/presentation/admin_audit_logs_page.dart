@@ -29,7 +29,16 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
           final result = snapshot.data!;
           return result.when(
             success: (data) {
-              final logs = data is List ? data : const <dynamic>[];
+              final logs = data is List
+                  ? data
+                  : data is Map<String, dynamic>
+                      ? (data['items'] as List<dynamic>? ?? data['data'] as List<dynamic>? ?? data['results'] as List<dynamic>? ?? const <dynamic>[])
+                      : data is Map
+                          ? (Map<String, dynamic>.from(data)['items'] as List<dynamic>? ??
+                              Map<String, dynamic>.from(data)['data'] as List<dynamic>? ??
+                              Map<String, dynamic>.from(data)['results'] as List<dynamic>? ??
+                              const <dynamic>[])
+                          : const <dynamic>[];
               return ListView.separated(
                 padding: const EdgeInsets.all(16),
                 itemCount: logs.length,

@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_initializing_formals
 import 'package:formfrontend/core/api/api_result.dart';
+import 'package:formfrontend/core/api/api_response_parsers.dart';
 import 'package:formfrontend/core/auth/auth_repository.dart';
 import 'package:formfrontend/core/storage/secure_token_storage.dart';
 import 'package:formfrontend/features/auth/data/auth_api.dart';
@@ -87,7 +88,15 @@ class AuthRepositoryImpl implements AuthRepository {
     final result = await _api.getSessions();
     return result.when(
       success: (data) {
-        final list = data.map((e) => SessionInfo.fromJson(e as Map<String, dynamic>)).toList();
+        final sessionsValue = data['sessions'];
+        final rawSessions = sessionsValue is List
+            ? sessionsValue.cast<dynamic>()
+            : sessionsValue is Map<String, dynamic>
+                ? ApiResponseParsers.parseList(sessionsValue)
+                : sessionsValue is Map
+                    ? ApiResponseParsers.parseList(Map<String, dynamic>.from(sessionsValue))
+                    : const <dynamic>[];
+        final list = rawSessions.map((e) => SessionInfo.fromJson(e as Map<String, dynamic>)).toList();
         return ApiResult.success(list);
       },
       failure: (error) => ApiResult.failure(error),

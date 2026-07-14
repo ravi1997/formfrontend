@@ -52,7 +52,14 @@ class _OrganisationManagementPageState extends State<OrganisationManagementPage>
     result.when(
       success: (items) {
         setState(() {
-          _organisations = List<Map<String, dynamic>>.from(items.map((e) => Map<String, dynamic>.from(e)));
+          _organisations = items
+              .map((e) => e is Map<String, dynamic>
+                  ? e
+                  : e is Map
+                      ? Map<String, dynamic>.from(e)
+                      : <String, dynamic>{})
+              .where((org) => org.isNotEmpty)
+              .toList();
           _isLoading = false;
         });
       },
@@ -310,7 +317,12 @@ class _OrganisationManagementPageState extends State<OrganisationManagementPage>
                               final String name = org['name'] ?? 'Unnamed';
                               final String status = org['status'] ?? 'inactive';
                               final bool isActive = status == 'active';
-                              final admins = org['admins'] as List<dynamic>? ?? [];
+                              final adminsRaw = org['admins'];
+                              final admins = adminsRaw is List
+                                  ? adminsRaw
+                                  : adminsRaw is Map
+                                      ? adminsRaw.values.toList()
+                                      : const <dynamic>[];
 
                               return Card(
                                 elevation: 1,

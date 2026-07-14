@@ -29,10 +29,15 @@ class _ReadinessPageState extends State<ReadinessPage> {
           final result = snapshot.data!;
           return result.when(
             success: (data) {
-              final status = data['status']?.toString() ?? 'Unknown';
-              final checks = data['checks'];
+              final payload = data is Map<String, dynamic>
+                  ? data
+                  : data is Map
+                      ? Map<String, dynamic>.from(data)
+                      : <String, dynamic>{};
+              final status = payload['status']?.toString() ?? 'Unknown';
+              final checks = payload['checks'];
               final checkCount = checks is List ? checks.length : null;
-              final source = data['source']?.toString() ?? 'backend';
+              final source = payload['source']?.toString() ?? 'backend';
 
               return ListView(
                 padding: const EdgeInsets.all(16),
@@ -61,7 +66,7 @@ class _ReadinessPageState extends State<ReadinessPage> {
                         children: [
                           Text('Readiness payload', style: Theme.of(context).textTheme.titleMedium),
                           const SizedBox(height: 8),
-                          SelectableText(data.toString()),
+                          SelectableText(payload.toString()),
                         ],
                       ),
                     ),

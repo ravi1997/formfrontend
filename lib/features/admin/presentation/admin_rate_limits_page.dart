@@ -29,8 +29,13 @@ class _AdminRateLimitsPageState extends State<AdminRateLimitsPage> {
           final result = snapshot.data!;
           return result.when(
             success: (data) {
-              final entries = data is Map<String, dynamic> ? data.entries.toList() : <MapEntry<String, dynamic>>[];
-              final status = data is Map<String, dynamic> ? data['status']?.toString() ?? 'Unknown' : 'Unknown';
+              final payload = data is Map<String, dynamic>
+                  ? data
+                  : data is Map
+                      ? Map<String, dynamic>.from(data)
+                      : <String, dynamic>{};
+              final entries = payload.entries.toList();
+              final status = payload['status']?.toString() ?? 'Unknown';
               return ListView(
                 padding: const EdgeInsets.all(16),
                 children: [

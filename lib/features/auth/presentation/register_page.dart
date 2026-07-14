@@ -44,10 +44,18 @@ class _RegisterPageState extends State<RegisterPage> {
       );
 
       if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Profile registered and authenticated successfully.')),
-        );
-        Navigator.of(context).pop(); // Back to login, which automatically moves forward if authenticated
+        if (authState.isAuthenticated) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile registered and authenticated successfully.')),
+          );
+          Navigator.of(context).pop();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Profile registered. Verify the account, then log in.'),
+            ),
+          );
+        }
       } else if (mounted && authState.errorMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

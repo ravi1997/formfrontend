@@ -24,6 +24,12 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
     ]);
   }
 
+  Map<String, dynamic>? _asMap(dynamic data) {
+    if (data is Map<String, dynamic>) return data;
+    if (data is Map) return Map<String, dynamic>.from(data);
+    return null;
+  }
+
   Widget _summaryCard(String title, ApiResult<dynamic> result) {
     return Card(
       child: Padding(
@@ -34,19 +40,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             children: [
               Text(title, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
-              if (title == 'Config Health')
-                Text('Status: ${data['status']?.toString() ?? 'Unknown'}')
-              else if (title == 'Audit Logs')
-                Text('Entries: ${(data is List ? data.length : 0)}')
-              else if (title == 'Rate Limit Status')
-                Text('Status: ${data['status']?.toString() ?? 'Unknown'}'),
+              if (title == 'Config Health') ...[
+                Text('Status: ${_asMap(data)?['status']?.toString() ?? 'Unknown'}'),
+              ] else if (title == 'Audit Logs') ...[
+                Text('Entries: ${(data is List ? data.length : 0)}'),
+              ] else if (title == 'Rate Limit Status') ...[
+                Text('Status: ${_asMap(data)?['status']?.toString() ?? 'Unknown'}'),
+              ],
               const SizedBox(height: 8),
-              if (title == 'Config Health')
-                Text('Checks: ${data['checks'] is List ? (data['checks'] as List).length : 'Unknown'}')
-              else if (title == 'Audit Logs')
-                Text('Latest entry type: ${data is List && data.isNotEmpty ? data.first.runtimeType : 'Unknown'}')
-              else if (title == 'Rate Limit Status')
-                Text('Fields: ${data is Map<String, dynamic> ? data.length : 'Unknown'}'),
+              if (title == 'Config Health') ...[
+                Text('Checks: ${_asMap(data)?['checks'] is List ? (_asMap(data)?['checks'] as List).length : 'Unknown'}'),
+              ] else if (title == 'Audit Logs') ...[
+                Text('Latest entry type: ${data is List && data.isNotEmpty ? data.first.runtimeType : 'Unknown'}'),
+              ] else if (title == 'Rate Limit Status') ...[
+                Text('Fields: ${_asMap(data)?.length ?? 'Unknown'}'),
+              ],
               const SizedBox(height: 8),
               SelectableText(data.toString()),
             ],

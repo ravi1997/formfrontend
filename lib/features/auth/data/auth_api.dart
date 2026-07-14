@@ -49,7 +49,7 @@ class AuthApi {
     return _client.get(ApiEndpoints.me);
   }
 
-  Future<ApiResult<List<dynamic>>> getSessions() {
+  Future<ApiResult<Map<String, dynamic>>> getSessions() {
     return _client.get(ApiEndpoints.sessions);
   }
 

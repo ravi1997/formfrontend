@@ -108,4 +108,8 @@ class ApiEndpoints {
   static const String bulkResetRateLimits = '/admin/rate-limits/bulk/reset';
   static const String rateLimitLogs = '/admin/rate-limits/logs';
   static const String rateLimitStatus = '/admin/rate-limits/status';
+
+  // Organizations
+  static const String organizations = '/organizations';
+  static String organizationDetail(String organizationUuid) => '/organizations/$organizationUuid';
 }

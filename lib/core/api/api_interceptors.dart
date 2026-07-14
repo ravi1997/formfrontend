@@ -57,10 +57,17 @@ class ApiInterceptors extends Interceptor {
           );
 
           if (response.statusCode == 200 && response.data != null) {
-            final data = response.data as Map<String, dynamic>;
-            final newAccessToken = data['access_token'] as String;
-            final newRefreshToken = data['refresh_token'] as String;
-            final newSessionUuid = data['session_uuid'] as String?;
+            final data = response.data is Map<String, dynamic>
+                ? response.data as Map<String, dynamic>
+                : <String, dynamic>{};
+            final newAccessToken = data['access_token']?.toString();
+            final newRefreshToken = data['refresh_token']?.toString();
+            final newSessionUuid = data['session_uuid']?.toString();
+
+            if (newAccessToken == null || newRefreshToken == null) {
+              await _tokenStorage.clearAll();
+              return super.onError(err, handler);
+            }
 
             // Store new tokens
             await _tokenStorage.saveTokens(

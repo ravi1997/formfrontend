@@ -33,13 +33,13 @@ class UserProfile {
     }
 
     return UserProfile(
-      uuid: json['uuid'] as String? ?? json['id'] as String? ?? '',
-      email: json['email'] as String? ?? '',
-      name: json['name'] as String? ?? '',
-      designation: json['designation'] as String?,
-      phone: json['phone'] as String?,
+      uuid: _stringValue(json['uuid']) ?? _stringValue(json['id']) ?? '',
+      email: _stringValue(json['email']) ?? '',
+      name: _stringValue(json['name']) ?? '',
+      designation: _stringValue(json['designation']),
+      phone: _stringValue(json['phone']),
       roles: parsedRoles,
-      isSuperAdmin: json['is_super_admin'] as bool? ?? false,
+      isSuperAdmin: _boolValue(json['is_super_admin']),
     );
   }
 
@@ -71,10 +71,10 @@ class SessionInfo {
 
   factory SessionInfo.fromJson(Map<String, dynamic> json) {
     return SessionInfo(
-      uuid: json['uuid'] as String? ?? json['id'] as String? ?? '',
-      deviceName: json['device_name'] as String? ?? 'Unknown Device',
-      lastActiveAt: json['last_active_at'] as String? ?? '',
-      isCurrent: json['is_current'] as bool? ?? false,
+      uuid: _stringValue(json['uuid']) ?? _stringValue(json['id']) ?? '',
+      deviceName: _stringValue(json['device_name']) ?? 'Unknown Device',
+      lastActiveAt: _stringValue(json['last_active_at']) ?? '',
+      isCurrent: _boolValue(json['is_current']),
     );
   }
 
@@ -103,12 +103,26 @@ class AuthResponse {
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
-      accessToken: json['access_token'] as String? ?? '',
-      refreshToken: json['refresh_token'] as String? ?? '',
-      sessionUuid: json['session_uuid'] as String?,
+      accessToken: _stringValue(json['access_token']) ?? '',
+      refreshToken: _stringValue(json['refresh_token']) ?? '',
+      sessionUuid: _stringValue(json['session_uuid']),
       user: json['user'] != null
-          ? UserProfile.fromJson(json['user'] as Map<String, dynamic>)
+          ? UserProfile.fromJson(Map<String, dynamic>.from(json['user'] as Map))
           : null,
     );
   }
+}
+
+String? _stringValue(dynamic value) {
+  if (value == null) return null;
+  final text = value.toString().trim();
+  return text.isEmpty ? null : text;
+}
+
+bool _boolValue(dynamic value) {
+  if (value is bool) return value;
+  if (value is num) return value != 0;
+  final text = value?.toString().trim().toLowerCase();
+  if (text == null || text.isEmpty) return false;
+  return text == 'true' || text == '1' || text == 'yes';
 }

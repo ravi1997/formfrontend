@@ -57,6 +57,8 @@ void main() {
       ApiEndpoints.publishLayoutTemplate('t2', 'r2'),
       '/ui/layout-templates/t2/revisions/r2/publish',
     );
+    expect(ApiEndpoints.organizations, '/organizations');
+    expect(ApiEndpoints.organizationDetail('o1'), '/organizations/o1');
   });
 
   test('Auth model parsing accepts common backend shapes', () {
@@ -92,6 +94,29 @@ void main() {
 
     expect(profile.uuid, 'user-2');
     expect(profile.roles, containsAll(['super_admin', 'operator']));
+  });
+
+  test('Auth model parsing tolerates stringified and numeric backend fields', () {
+    final auth = AuthResponse.fromJson({
+      'access_token': 123,
+      'refresh_token': 'refresh',
+      'session_uuid': 456,
+      'user': {
+        'id': 789,
+        'email': 'ops@example.com',
+        'name': 'Ops',
+        'designation': 42,
+        'phone': 5551234,
+        'is_super_admin': 1,
+      },
+    });
+
+    expect(auth.accessToken, '123');
+    expect(auth.sessionUuid, '456');
+    expect(auth.user?.uuid, '789');
+    expect(auth.user?.designation, '42');
+    expect(auth.user?.phone, '5551234');
+    expect(auth.user?.isSuperAdmin, isTrue);
   });
 
   test('AppRouter maps backend domain routes into the shell', () {
@@ -153,11 +178,29 @@ void main() {
       ),
     );
     final conditionsRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditions));
+    final conditionBatchRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditionBatchTest));
+    final conditionVersionsRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditionVersions));
+    final conditionApprovalRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditionApproval));
+    final conditionAsyncRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditionAsync));
+    final conditionPresetsRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditionPresets));
+    final conditionMonitoringRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditionMonitoring));
     final monitoringRoute = AppRouter.onGenerateRoute(
       const RouteSettings(name: RouteNames.conditions, arguments: 'monitoring'),
     );
     final projectsRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.projects));
     final themesRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.themes));
+    final themeTemplateRoute = AppRouter.onGenerateRoute(
+      const RouteSettings(
+        name: RouteNames.themeTemplateDetail,
+        arguments: {'templateUuid': 't1'},
+      ),
+    );
+    final layoutTemplateRoute = AppRouter.onGenerateRoute(
+      const RouteSettings(
+        name: RouteNames.layoutTemplateDetail,
+        arguments: {'templateUuid': 'l1'},
+      ),
+    );
     final loginRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.login));
 
     expect(projectDetailRoute.settings.name, RouteNames.projectDetail);
@@ -170,9 +213,17 @@ void main() {
     expect(questionVersionsRoute.settings.name, RouteNames.questionVersions);
     expect(choiceEditRoute.settings.name, RouteNames.choiceEdit);
     expect(conditionsRoute.settings.name, RouteNames.conditions);
+    expect(conditionBatchRoute.settings.name, RouteNames.conditionBatchTest);
+    expect(conditionVersionsRoute.settings.name, RouteNames.conditionVersions);
+    expect(conditionApprovalRoute.settings.name, RouteNames.conditionApproval);
+    expect(conditionAsyncRoute.settings.name, RouteNames.conditionAsync);
+    expect(conditionPresetsRoute.settings.name, RouteNames.conditionPresets);
+    expect(conditionMonitoringRoute.settings.name, RouteNames.conditionMonitoring);
     expect(monitoringRoute.settings.name, RouteNames.conditions);
     expect(projectsRoute.settings.name, RouteNames.projects);
     expect(themesRoute.settings.name, RouteNames.themes);
+    expect(themeTemplateRoute.settings.name, RouteNames.themeTemplateDetail);
+    expect(layoutTemplateRoute.settings.name, RouteNames.layoutTemplateDetail);
     expect(loginRoute.settings.name, RouteNames.login);
   });
 }

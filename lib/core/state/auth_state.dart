@@ -44,6 +44,7 @@ class AuthStateNotifier extends ChangeNotifier {
     notifyListeners();
 
     final result = await _authRepository.getMe();
+    var shouldClearCredentials = false;
     result.when(
       success: (user) {
         _currentUser = user;
@@ -51,11 +52,15 @@ class AuthStateNotifier extends ChangeNotifier {
         _errorMessage = null;
       },
       failure: (error) {
+        shouldClearCredentials = error.statusCode == 401 || error.statusCode == 403;
         _status = AuthStatus.unauthenticated;
         _currentUser = null;
         _errorMessage = error.message;
       },
     );
+    if (shouldClearCredentials) {
+      await _tokenStorage.clearAll();
+    }
     notifyListeners();
   }
 

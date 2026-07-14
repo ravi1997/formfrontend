@@ -18,6 +18,7 @@ class AuthStateNotifier extends ChangeNotifier {
   AuthStatus _status = AuthStatus.initial;
   UserProfile? _currentUser;
   String? _errorMessage;
+  int? _errorStatusCode;
 
   AuthStateNotifier({
     required AuthRepository authRepository,
@@ -30,6 +31,7 @@ class AuthStateNotifier extends ChangeNotifier {
   AuthStatus get status => _status;
   UserProfile? get currentUser => _currentUser;
   String? get errorMessage => _errorMessage;
+  int? get errorStatusCode => _errorStatusCode;
   bool get isAuthenticated => _status == AuthStatus.authenticated;
 
   Future<void> checkAuthStatus() async {
@@ -50,12 +52,14 @@ class AuthStateNotifier extends ChangeNotifier {
         _currentUser = user;
         _status = AuthStatus.authenticated;
         _errorMessage = null;
+        _errorStatusCode = null;
       },
       failure: (error) {
         shouldClearCredentials = error.statusCode == 401 || error.statusCode == 403;
         _status = AuthStatus.unauthenticated;
         _currentUser = null;
         _errorMessage = error.message;
+        _errorStatusCode = error.statusCode;
       },
     );
     if (shouldClearCredentials) {
@@ -70,6 +74,7 @@ class AuthStateNotifier extends ChangeNotifier {
   }) async {
     _status = AuthStatus.authenticating;
     _errorMessage = null;
+    _errorStatusCode = null;
     notifyListeners();
 
     final result = await _authRepository.login(email: email, password: password);
@@ -78,6 +83,7 @@ class AuthStateNotifier extends ChangeNotifier {
       success: (authResp) async {
         _currentUser = authResp.user;
         _status = AuthStatus.authenticated;
+        _errorStatusCode = null;
         success = true;
         // In case User profile was not returned in the login payload, fetch it
         if (_currentUser == null) {
@@ -96,6 +102,7 @@ class AuthStateNotifier extends ChangeNotifier {
         _status = AuthStatus.unauthenticated;
         _currentUser = null;
         _errorMessage = error.message;
+        _errorStatusCode = error.statusCode;
       },
     );
     notifyListeners();
@@ -112,6 +119,7 @@ class AuthStateNotifier extends ChangeNotifier {
   }) async {
     _status = AuthStatus.authenticating;
     _errorMessage = null;
+    _errorStatusCode = null;
     notifyListeners();
 
     final result = await _authRepository.register(
@@ -130,6 +138,7 @@ class AuthStateNotifier extends ChangeNotifier {
         if (hasTokens) {
           _currentUser = authResp.user;
           _status = AuthStatus.authenticated;
+          _errorStatusCode = null;
           if (_currentUser == null) {
             final meResult = await _authRepository.getMe();
             meResult.when(
@@ -141,12 +150,14 @@ class AuthStateNotifier extends ChangeNotifier {
           _currentUser = null;
           _status = AuthStatus.unauthenticated;
           _errorMessage = null;
+          _errorStatusCode = null;
         }
       },
       failure: (error) {
         _status = AuthStatus.unauthenticated;
         _currentUser = null;
         _errorMessage = error.message;
+        _errorStatusCode = error.statusCode;
       },
     );
     notifyListeners();
@@ -160,6 +171,7 @@ class AuthStateNotifier extends ChangeNotifier {
     _currentUser = null;
     _status = AuthStatus.unauthenticated;
     _errorMessage = null;
+    _errorStatusCode = null;
     notifyListeners();
   }
 }

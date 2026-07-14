@@ -103,6 +103,7 @@ void main() {
     await notifier.checkAuthStatus();
 
     expect(notifier.status, AuthStatus.unauthenticated);
+    expect(notifier.errorStatusCode, 401);
     expect(await storage.getAccessToken(), isNull);
     expect(await storage.getRefreshToken(), isNull);
     expect(await storage.getSessionUuid(), isNull);
@@ -133,6 +134,7 @@ void main() {
     expect(success, isTrue);
     expect(notifier.status, AuthStatus.unauthenticated);
     expect(notifier.currentUser, isNull);
+    expect(notifier.errorStatusCode, isNull);
     expect(await storage.getAccessToken(), isNull);
     expect(await storage.getRefreshToken(), isNull);
   });

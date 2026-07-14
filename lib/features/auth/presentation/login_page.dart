@@ -217,6 +217,16 @@ class _LoginPageState extends State<LoginPage> {
                           : const Text('Authenticate'),
                     ),
                   ),
+                  if (authState.errorStatusCode == 401 || authState.errorStatusCode == 403) ...[
+                    SizedBox(height: context.space12),
+                    Text(
+                      'This account must be verified before it can authenticate.',
+                      style: context.bodyMedium.copyWith(
+                        color: AppColors.greyMuted,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                   SizedBox(height: context.space24),
                   Wrap(
                     alignment: WrapAlignment.center,

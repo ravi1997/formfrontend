@@ -18,6 +18,7 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
   bool _rememberMe = false;
+  bool _showVerificationHint = false;
 
   @override
   void initState() {
@@ -63,10 +64,16 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (success && mounted) {
+        setState(() {
+          _showVerificationHint = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Authenticated successfully.')),
         );
       } else if (mounted && authState.errorMessage != null) {
+        setState(() {
+          _showVerificationHint = true;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(authState.errorMessage!),
@@ -217,7 +224,7 @@ class _LoginPageState extends State<LoginPage> {
                           : const Text('Authenticate'),
                     ),
                   ),
-                  if (authState.errorStatusCode == 401 || authState.errorStatusCode == 403) ...[
+                  if (_showVerificationHint) ...[
                     SizedBox(height: context.space12),
                     Text(
                       'This account must be verified before it can authenticate.',

@@ -16,8 +16,6 @@ class _FormsListPageState extends State<FormsListPage> {
   late Future<ApiResult<List<dynamic>>> _projectsFuture;
   String? _selectedProjectUuid;
   late Future<ApiResult<List<dynamic>>>? _formsFuture;
-  final _createFormNameController = TextEditingController();
-  final _editFormNameController = TextEditingController();
 
   @override
   void initState() {
@@ -28,8 +26,6 @@ class _FormsListPageState extends State<FormsListPage> {
 
   @override
   void dispose() {
-    _createFormNameController.dispose();
-    _editFormNameController.dispose();
     super.dispose();
   }
 
@@ -41,61 +37,18 @@ class _FormsListPageState extends State<FormsListPage> {
     await _formsFuture;
   }
 
-  Future<void> _createForm() async {
-    final projectUuid = _selectedProjectUuid;
-    final name = _createFormNameController.text.trim();
-    if (projectUuid == null || name.isEmpty) return;
-    final result = await context.read<FormsApi>().createForm(projectUuid, {'name': name});
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.isSuccess ? 'Form created' : result.errorOrNull?.message ?? 'Create failed'),
-        ),
-      );
-    }
-    if (result.isSuccess) {
-      _createFormNameController.clear();
-      await _loadForms(projectUuid);
-    }
-  }
-
-  Future<void> _updateForm(String formUuid, String currentName) async {
+  Future<void> _updateForm(String formUuid) async {
     final projectUuid = _selectedProjectUuid;
     if (projectUuid == null) return;
-    final formsApi = context.read<FormsApi>();
-    _editFormNameController.text = currentName;
-    final name = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Edit form'),
-        content: TextField(
-          controller: _editFormNameController,
-          decoration: const InputDecoration(labelText: 'Form name'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext, _editFormNameController.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+    if (!mounted) return;
+    await Navigator.of(context).pushNamed(
+      RouteNames.formEdit,
+      arguments: {
+        'projectUuid': projectUuid,
+        'formUuid': formUuid,
+      },
     );
-    if (name == null || name.isEmpty) return;
-    final result = await formsApi.updateForm(projectUuid, formUuid, {'name': name});
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.isSuccess ? 'Form updated' : result.errorOrNull?.message ?? 'Update failed'),
-        ),
-      );
-    }
-    if (result.isSuccess) {
-      await _loadForms(projectUuid);
-    }
+    await _loadForms(projectUuid);
   }
 
   Future<void> _deleteForm(String formUuid) async {
@@ -132,31 +85,10 @@ class _FormsListPageState extends State<FormsListPage> {
             icon: const Icon(Icons.add),
             onPressed: _selectedProjectUuid == null
                 ? null
-                : () {
-                    showDialog<void>(
-                      context: context,
-                      builder: (dialogContext) => AlertDialog(
-                        title: const Text('Create form'),
-                        content: TextField(
-                          controller: _createFormNameController,
-                          decoration: const InputDecoration(labelText: 'Form name'),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(dialogContext),
-                            child: const Text('Cancel'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              Navigator.pop(dialogContext);
-                              await _createForm();
-                            },
-                            child: const Text('Create'),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                : () => Navigator.of(context).pushNamed(
+                      RouteNames.formCreate,
+                      arguments: {'projectUuid': _selectedProjectUuid!},
+                    ),
           ),
         ],
       ),
@@ -245,7 +177,7 @@ class _FormsListPageState extends State<FormsListPage> {
                                   trailing: PopupMenuButton<String>(
                                     onSelected: (value) {
                                       if (value == 'edit') {
-                                        _updateForm(formUuid, _labelFor(form));
+                                        _updateForm(formUuid);
                                       } else if (value == 'delete') {
                                         _deleteForm(formUuid);
                                       } else if (value == 'versions') {

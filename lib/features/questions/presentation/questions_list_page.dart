@@ -22,7 +22,6 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
   Future<ApiResult<List<dynamic>>>? _formsFuture;
   Future<ApiResult<List<dynamic>>>? _sectionsFuture;
   Future<ApiResult<List<dynamic>>>? _questionsFuture;
-  final _editQuestionController = TextEditingController();
 
   @override
   void initState() {
@@ -30,15 +29,15 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
     _projectsFuture = context.read<ProjectsApi>().listProjects();
   }
 
-  @override
-  void dispose() {
-    _editQuestionController.dispose();
-    super.dispose();
-  }
-
   String _labelFor(dynamic item, {String fallback = 'Unnamed'}) {
     if (item is Map<String, dynamic>) {
-      return (item['name'] ?? item['title'] ?? item['slug'] ?? item['uuid'] ?? item['id'] ?? fallback).toString();
+      return (item['name'] ??
+              item['title'] ??
+              item['slug'] ??
+              item['uuid'] ??
+              item['id'] ??
+              fallback)
+          .toString();
     }
     return item.toString();
   }
@@ -76,7 +75,11 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
     await _sectionsFuture;
   }
 
-  Future<void> _loadQuestions(String projectUuid, String formUuid, String sectionUuid) async {
+  Future<void> _loadQuestions(
+    String projectUuid,
+    String formUuid,
+    String sectionUuid,
+  ) async {
     setState(() {
       _projectUuid = projectUuid;
       _formUuid = formUuid;
@@ -90,51 +93,20 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
     await _questionsFuture;
   }
 
-  Future<void> _updateQuestion(String questionUuid, String currentName) async {
+  Future<void> _updateQuestion(String questionUuid) async {
     final projectUuid = _projectUuid;
     final formUuid = _formUuid;
     final sectionUuid = _sectionUuid;
     if (projectUuid == null || formUuid == null || sectionUuid == null) return;
-    final questionsApi = context.read<QuestionsApi>();
-    _editQuestionController.text = currentName;
-    final name = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Edit question'),
-        content: TextField(
-          controller: _editQuestionController,
-          decoration: const InputDecoration(labelText: 'Question name'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext, _editQuestionController.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+    Navigator.of(context).pushNamed(
+      RouteNames.questionEdit,
+      arguments: {
+        'projectUuid': projectUuid,
+        'formUuid': formUuid,
+        'sectionUuid': sectionUuid,
+        'questionUuid': questionUuid,
+      },
     );
-    if (name == null || name.isEmpty) return;
-    final result = await questionsApi.updateQuestion(
-      projectUuid: projectUuid,
-      formUuid: formUuid,
-      sectionUuid: sectionUuid,
-      questionUuid: questionUuid,
-      payload: {'name': name},
-    );
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.isSuccess ? 'Question updated' : result.errorOrNull?.message ?? 'Update failed'),
-        ),
-      );
-    }
-    if (result.isSuccess) {
-      await _loadQuestions(projectUuid, formUuid, sectionUuid);
-    }
   }
 
   Future<void> _deleteQuestion(String questionUuid) async {
@@ -152,7 +124,11 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.isSuccess ? 'Question deleted' : result.errorOrNull?.message ?? 'Delete failed'),
+          content: Text(
+            result.isSuccess
+                ? 'Question deleted'
+                : result.errorOrNull?.message ?? 'Delete failed',
+          ),
         ),
       );
     }
@@ -178,7 +154,9 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
               }
 
               _projectUuid ??= _uuidFor(projects.first);
-              _formsFuture ??= context.read<FormsApi>().listForms(_projectUuid!);
+              _formsFuture ??= context.read<FormsApi>().listForms(
+                _projectUuid!,
+              );
 
               return Column(
                 children: [
@@ -188,10 +166,14 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
                       initialValue: _projectUuid,
                       decoration: const InputDecoration(labelText: 'Project'),
                       items: projects
-                          .map((project) => DropdownMenuItem<String>(
-                                value: _uuidFor(project),
-                                child: Text(_labelFor(project, fallback: 'Project')),
-                              ))
+                          .map(
+                            (project) => DropdownMenuItem<String>(
+                              value: _uuidFor(project),
+                              child: Text(
+                                _labelFor(project, fallback: 'Project'),
+                              ),
+                            ),
+                          )
                           .toList(),
                       onChanged: (value) {
                         if (value != null) {
@@ -216,12 +198,18 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
                             _formUuid ??= _uuidFor(forms.first);
                             return DropdownButtonFormField<String>(
                               initialValue: _formUuid,
-                              decoration: const InputDecoration(labelText: 'Form'),
+                              decoration: const InputDecoration(
+                                labelText: 'Form',
+                              ),
                               items: forms
-                                  .map((form) => DropdownMenuItem<String>(
-                                        value: _uuidFor(form),
-                                        child: Text(_labelFor(form, fallback: 'Form')),
-                                      ))
+                                  .map(
+                                    (form) => DropdownMenuItem<String>(
+                                      value: _uuidFor(form),
+                                      child: Text(
+                                        _labelFor(form, fallback: 'Form'),
+                                      ),
+                                    ),
+                                  )
                                   .toList(),
                               onChanged: (value) {
                                 if (value != null && _projectUuid != null) {
@@ -240,7 +228,9 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
                     child: FutureBuilder<ApiResult<List<dynamic>>>(
                       future: _sectionsFuture,
                       builder: (context, sectionsSnapshot) {
-                        if (sectionsSnapshot.connectionState == ConnectionState.waiting && _sectionsFuture == null) {
+                        if (sectionsSnapshot.connectionState ==
+                                ConnectionState.waiting &&
+                            _sectionsFuture == null) {
                           return const SizedBox.shrink();
                         }
                         if (!sectionsSnapshot.hasData) {
@@ -254,16 +244,28 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
                             _sectionUuid ??= _uuidFor(sections.first);
                             return DropdownButtonFormField<String>(
                               initialValue: _sectionUuid,
-                              decoration: const InputDecoration(labelText: 'Section'),
+                              decoration: const InputDecoration(
+                                labelText: 'Section',
+                              ),
                               items: sections
-                                  .map((section) => DropdownMenuItem<String>(
-                                        value: _uuidFor(section),
-                                        child: Text(_labelFor(section, fallback: 'Section')),
-                                      ))
+                                  .map(
+                                    (section) => DropdownMenuItem<String>(
+                                      value: _uuidFor(section),
+                                      child: Text(
+                                        _labelFor(section, fallback: 'Section'),
+                                      ),
+                                    ),
+                                  )
                                   .toList(),
                               onChanged: (value) {
-                                if (value != null && _projectUuid != null && _formUuid != null) {
-                                  _loadQuestions(_projectUuid!, _formUuid!, value);
+                                if (value != null &&
+                                    _projectUuid != null &&
+                                    _formUuid != null) {
+                                  _loadQuestions(
+                                    _projectUuid!,
+                                    _formUuid!,
+                                    value,
+                                  );
                                 }
                               },
                             );
@@ -276,44 +278,57 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
                   const SizedBox(height: 12),
                   Expanded(
                     child: FutureBuilder<ApiResult<List<dynamic>>>(
-                      future: _questionsFuture ?? Future.value(ApiResult.success(<dynamic>[])),
+                      future:
+                          _questionsFuture ??
+                          Future.value(ApiResult.success(<dynamic>[])),
                       builder: (context, questionsSnapshot) {
                         if (!questionsSnapshot.hasData) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         }
                         return questionsSnapshot.data!.when(
                           success: (questions) => RefreshIndicator(
                             onRefresh: () async {
-                              if (_projectUuid != null && _formUuid != null && _sectionUuid != null) {
-                                await _loadQuestions(_projectUuid!, _formUuid!, _sectionUuid!);
+                              if (_projectUuid != null &&
+                                  _formUuid != null &&
+                                  _sectionUuid != null) {
+                                await _loadQuestions(
+                                  _projectUuid!,
+                                  _formUuid!,
+                                  _sectionUuid!,
+                                );
                               }
                             },
                             child: ListView.separated(
                               physics: const AlwaysScrollableScrollPhysics(),
                               itemCount: questions.length,
-                              separatorBuilder: (_, _) => const Divider(height: 1),
+                              separatorBuilder: (_, _) =>
+                                  const Divider(height: 1),
                               itemBuilder: (context, index) {
                                 final question = questions[index];
                                 final questionUuid = _uuidFor(question);
                                 return ListTile(
                                   leading: const Icon(Icons.help_outline),
-                                  title: Text(_labelFor(question, fallback: 'Question')),
+                                  title: Text(
+                                    _labelFor(question, fallback: 'Question'),
+                                  ),
                                   subtitle: Text(questionUuid),
                                   onTap: questionUuid.isEmpty
                                       ? null
                                       : () => Navigator.of(context).pushNamed(
-                                            RouteNames.questionDetail,
-                                            arguments: {
-                                              'projectUuid': _projectUuid ?? '',
-                                              'formUuid': _formUuid ?? '',
-                                              'sectionUuid': _sectionUuid ?? '',
-                                              'questionUuid': questionUuid,
-                                            },
-                                          ),
+                                          RouteNames.questionDetail,
+                                          arguments: {
+                                            'projectUuid': _projectUuid ?? '',
+                                            'formUuid': _formUuid ?? '',
+                                            'sectionUuid': _sectionUuid ?? '',
+                                            'questionUuid': questionUuid,
+                                          },
+                                        ),
                                   trailing: PopupMenuButton<String>(
                                     onSelected: (value) {
                                       if (value == 'edit') {
-                                        _updateQuestion(questionUuid, _labelFor(question, fallback: 'Question'));
+                                        _updateQuestion(questionUuid);
                                       } else if (value == 'delete') {
                                         _deleteQuestion(questionUuid);
                                       } else if (value == 'versions' &&
@@ -332,16 +347,26 @@ class _QuestionsListPageState extends State<QuestionsListPage> {
                                       }
                                     },
                                     itemBuilder: (context) => const [
-                                      PopupMenuItem(value: 'edit', child: Text('Edit')),
-                                      PopupMenuItem(value: 'versions', child: Text('Versions')),
-                                      PopupMenuItem(value: 'delete', child: Text('Delete')),
+                                      PopupMenuItem(
+                                        value: 'edit',
+                                        child: Text('Edit'),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'versions',
+                                        child: Text('Versions'),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'delete',
+                                        child: Text('Delete'),
+                                      ),
                                     ],
                                   ),
                                 );
                               },
                             ),
                           ),
-                          failure: (error) => Center(child: Text(error.message)),
+                          failure: (error) =>
+                              Center(child: Text(error.message)),
                         );
                       },
                     ),

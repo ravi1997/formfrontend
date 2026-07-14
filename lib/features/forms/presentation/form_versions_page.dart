@@ -20,10 +20,54 @@ class FormVersionsPage extends StatefulWidget {
 class _FormVersionsPageState extends State<FormVersionsPage> {
   late Future<ApiResult<List<dynamic>>> _future;
 
+  String _textOf(dynamic value, [String fallback = 'Unknown']) {
+    final text = value?.toString();
+    return text == null || text.isEmpty ? fallback : text;
+  }
+
+  Widget _versionCard(dynamic version, int index) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Version ${index + 1}',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Text('UUID: ${_textOf(version is Map ? version['uuid'] : null)}'),
+            Text(
+              'Status: ${_textOf(version is Map ? version['status'] : null)}',
+            ),
+            Text(
+              'Created: ${_textOf(version is Map ? version['created'] : null)}',
+            ),
+            Text(
+              'Created by: ${_textOf(version is Map ? version['created_by'] : null)}',
+            ),
+            Text(
+              'Updated: ${_textOf(version is Map ? version['updated'] : null)}',
+            ),
+            Text(
+              'Updated by: ${_textOf(version is Map ? version['updated_by'] : null)}',
+            ),
+            const SizedBox(height: 8),
+            SelectableText(version.toString()),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    _future = context.read<FormsApi>().listFormVersions(widget.projectUuid, widget.formUuid);
+    _future = context.read<FormsApi>().listFormVersions(
+      widget.projectUuid,
+      widget.formUuid,
+    );
   }
 
   @override
@@ -46,7 +90,10 @@ class _FormVersionsPageState extends State<FormVersionsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Form Versions', style: Theme.of(context).textTheme.titleMedium),
+                        Text(
+                          'Form Versions',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
                         const SizedBox(height: 8),
                         Text('Version count: ${versions.length}'),
                       ],
@@ -57,21 +104,7 @@ class _FormVersionsPageState extends State<FormVersionsPage> {
                 ...versions.asMap().entries.map(
                   (entry) => Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Version ${entry.key + 1}', style: Theme.of(context).textTheme.titleMedium),
-                            const SizedBox(height: 8),
-                            Text('Type: ${entry.value.runtimeType}'),
-                            const SizedBox(height: 8),
-                            SelectableText(entry.value.toString()),
-                          ],
-                        ),
-                      ),
-                    ),
+                    child: _versionCard(entry.value, entry.key),
                   ),
                 ),
               ],

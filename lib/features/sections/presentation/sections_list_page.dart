@@ -19,7 +19,6 @@ class _SectionsListPageState extends State<SectionsListPage> {
   String? _formUuid;
   Future<ApiResult<List<dynamic>>>? _sectionsFuture;
   Future<ApiResult<List<dynamic>>>? _formsFuture;
-  final _editSectionController = TextEditingController();
 
   @override
   void initState() {
@@ -27,15 +26,15 @@ class _SectionsListPageState extends State<SectionsListPage> {
     _projectsFuture = context.read<ProjectsApi>().listProjects();
   }
 
-  @override
-  void dispose() {
-    _editSectionController.dispose();
-    super.dispose();
-  }
-
   String _labelFor(dynamic item, {String fallback = 'Unnamed'}) {
     if (item is Map<String, dynamic>) {
-      return (item['name'] ?? item['title'] ?? item['slug'] ?? item['uuid'] ?? item['id'] ?? fallback).toString();
+      return (item['name'] ??
+              item['title'] ??
+              item['slug'] ??
+              item['uuid'] ??
+              item['id'] ??
+              fallback)
+          .toString();
     }
     return item.toString();
   }
@@ -69,49 +68,18 @@ class _SectionsListPageState extends State<SectionsListPage> {
     await _sectionsFuture;
   }
 
-  Future<void> _updateSection(String sectionUuid, String currentName) async {
+  Future<void> _updateSection(String sectionUuid) async {
     final projectUuid = _projectUuid;
     final formUuid = _formUuid;
     if (projectUuid == null || formUuid == null) return;
-    final sectionsApi = context.read<SectionsApi>();
-    _editSectionController.text = currentName;
-    final name = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Edit section'),
-        content: TextField(
-          controller: _editSectionController,
-          decoration: const InputDecoration(labelText: 'Section name'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext, _editSectionController.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
+    Navigator.of(context).pushNamed(
+      RouteNames.sectionEdit,
+      arguments: {
+        'projectUuid': projectUuid,
+        'formUuid': formUuid,
+        'sectionUuid': sectionUuid,
+      },
     );
-    if (name == null || name.isEmpty) return;
-    final result = await sectionsApi.updateSection(
-      projectUuid: projectUuid,
-      formUuid: formUuid,
-      sectionUuid: sectionUuid,
-      payload: {'name': name},
-    );
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.isSuccess ? 'Section updated' : result.errorOrNull?.message ?? 'Update failed'),
-        ),
-      );
-    }
-    if (result.isSuccess) {
-      await _loadSections(projectUuid, formUuid);
-    }
   }
 
   Future<void> _deleteSection(String sectionUuid) async {
@@ -127,7 +95,11 @@ class _SectionsListPageState extends State<SectionsListPage> {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result.isSuccess ? 'Section deleted' : result.errorOrNull?.message ?? 'Delete failed'),
+          content: Text(
+            result.isSuccess
+                ? 'Section deleted'
+                : result.errorOrNull?.message ?? 'Delete failed',
+          ),
         ),
       );
     }
@@ -153,7 +125,9 @@ class _SectionsListPageState extends State<SectionsListPage> {
               }
 
               _projectUuid ??= _uuidFor(projects.first);
-              _formsFuture ??= context.read<FormsApi>().listForms(_projectUuid!);
+              _formsFuture ??= context.read<FormsApi>().listForms(
+                _projectUuid!,
+              );
 
               return Column(
                 children: [
@@ -163,10 +137,14 @@ class _SectionsListPageState extends State<SectionsListPage> {
                       initialValue: _projectUuid,
                       decoration: const InputDecoration(labelText: 'Project'),
                       items: projects
-                          .map((project) => DropdownMenuItem<String>(
-                                value: _uuidFor(project),
-                                child: Text(_labelFor(project, fallback: 'Project')),
-                              ))
+                          .map(
+                            (project) => DropdownMenuItem<String>(
+                              value: _uuidFor(project),
+                              child: Text(
+                                _labelFor(project, fallback: 'Project'),
+                              ),
+                            ),
+                          )
                           .toList(),
                       onChanged: (value) {
                         if (value != null) {
@@ -191,12 +169,18 @@ class _SectionsListPageState extends State<SectionsListPage> {
                             _formUuid ??= _uuidFor(forms.first);
                             return DropdownButtonFormField<String>(
                               initialValue: _formUuid,
-                              decoration: const InputDecoration(labelText: 'Form'),
+                              decoration: const InputDecoration(
+                                labelText: 'Form',
+                              ),
                               items: forms
-                                  .map((form) => DropdownMenuItem<String>(
-                                        value: _uuidFor(form),
-                                        child: Text(_labelFor(form, fallback: 'Form')),
-                                      ))
+                                  .map(
+                                    (form) => DropdownMenuItem<String>(
+                                      value: _uuidFor(form),
+                                      child: Text(
+                                        _labelFor(form, fallback: 'Form'),
+                                      ),
+                                    ),
+                                  )
                                   .toList(),
                               onChanged: (value) {
                                 if (value != null && _projectUuid != null) {
@@ -213,10 +197,14 @@ class _SectionsListPageState extends State<SectionsListPage> {
                   const SizedBox(height: 12),
                   Expanded(
                     child: FutureBuilder<ApiResult<List<dynamic>>>(
-                      future: _sectionsFuture ?? Future.value(ApiResult.success(<dynamic>[])),
+                      future:
+                          _sectionsFuture ??
+                          Future.value(ApiResult.success(<dynamic>[])),
                       builder: (context, sectionsSnapshot) {
                         if (!sectionsSnapshot.hasData) {
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         }
                         return sectionsSnapshot.data!.when(
                           success: (sections) => RefreshIndicator(
@@ -228,31 +216,36 @@ class _SectionsListPageState extends State<SectionsListPage> {
                             child: ListView.separated(
                               physics: const AlwaysScrollableScrollPhysics(),
                               itemCount: sections.length,
-                              separatorBuilder: (_, _) => const Divider(height: 1),
+                              separatorBuilder: (_, _) =>
+                                  const Divider(height: 1),
                               itemBuilder: (context, index) {
                                 final section = sections[index];
                                 final sectionUuid = _uuidFor(section);
                                 return ListTile(
                                   leading: const Icon(Icons.view_week_outlined),
-                                  title: Text(_labelFor(section, fallback: 'Section')),
+                                  title: Text(
+                                    _labelFor(section, fallback: 'Section'),
+                                  ),
                                   subtitle: Text(sectionUuid),
                                   onTap: sectionUuid.isEmpty
                                       ? null
                                       : () => Navigator.of(context).pushNamed(
-                                            RouteNames.sectionDetail,
-                                            arguments: {
-                                              'projectUuid': _projectUuid ?? '',
-                                              'formUuid': _formUuid ?? '',
-                                              'sectionUuid': sectionUuid,
-                                            },
-                                          ),
+                                          RouteNames.sectionDetail,
+                                          arguments: {
+                                            'projectUuid': _projectUuid ?? '',
+                                            'formUuid': _formUuid ?? '',
+                                            'sectionUuid': sectionUuid,
+                                          },
+                                        ),
                                   trailing: PopupMenuButton<String>(
                                     onSelected: (value) {
                                       if (value == 'edit') {
-                                        _updateSection(sectionUuid, _labelFor(section, fallback: 'Section'));
+                                        _updateSection(sectionUuid);
                                       } else if (value == 'delete') {
                                         _deleteSection(sectionUuid);
-                                      } else if (value == 'versions' && _projectUuid != null && _formUuid != null) {
+                                      } else if (value == 'versions' &&
+                                          _projectUuid != null &&
+                                          _formUuid != null) {
                                         Navigator.of(context).pushNamed(
                                           RouteNames.sectionVersions,
                                           arguments: {
@@ -264,16 +257,26 @@ class _SectionsListPageState extends State<SectionsListPage> {
                                       }
                                     },
                                     itemBuilder: (context) => const [
-                                      PopupMenuItem(value: 'edit', child: Text('Edit')),
-                                      PopupMenuItem(value: 'versions', child: Text('Versions')),
-                                      PopupMenuItem(value: 'delete', child: Text('Delete')),
+                                      PopupMenuItem(
+                                        value: 'edit',
+                                        child: Text('Edit'),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'versions',
+                                        child: Text('Versions'),
+                                      ),
+                                      PopupMenuItem(
+                                        value: 'delete',
+                                        child: Text('Delete'),
+                                      ),
                                     ],
                                   ),
                                 );
                               },
                             ),
                           ),
-                          failure: (error) => Center(child: Text(error.message)),
+                          failure: (error) =>
+                              Center(child: Text(error.message)),
                         );
                       },
                     ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:formfrontend/app/router/route_names.dart';
 import 'package:formfrontend/core/api/api_result.dart';
 import 'package:formfrontend/features/projects/data/projects_api.dart';
 
@@ -35,8 +36,13 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
             success: (data) {
               final name = data['name']?.toString() ?? 'Unnamed project';
               final status = data['status']?.toString() ?? 'Unknown';
-              final versionCount = data['versions'] is List ? (data['versions'] as List).length : null;
-              final owner = data['owner']?.toString() ?? data['created_by']?.toString() ?? 'Unknown';
+              final versionCount = data['versions'] is List
+                  ? (data['versions'] as List).length
+                  : null;
+              final owner =
+                  data['owner']?.toString() ??
+                  data['created_by']?.toString() ??
+                  'Unknown';
 
               return ListView(
                 padding: const EdgeInsets.all(16),
@@ -47,7 +53,10 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(name, style: Theme.of(context).textTheme.titleMedium),
+                          Text(
+                            name,
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
                           const SizedBox(height: 8),
                           Text('Status: $status'),
                           Text('Owner: $owner'),
@@ -62,6 +71,14 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                       padding: const EdgeInsets.all(16),
                       child: SelectableText(data.toString()),
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pushNamed(
+                      RouteNames.projectForm,
+                      arguments: {'projectUuid': widget.projectUuid},
+                    ),
+                    child: const Text('Edit Project'),
                   ),
                 ],
               );

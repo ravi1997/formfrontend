@@ -8,6 +8,7 @@ class RouteNames {
   static const String projectDetail = '/projects/detail';
   static const String projectForm = '/projects/form';
   static const String forms = '/forms';
+  static const String formCreate = '/forms/create';
   static const String formDetail = '/forms/detail';
   static const String formEdit = '/forms/edit';
   static const String formVersions = '/forms/versions';
@@ -38,9 +39,12 @@ class RouteNames {
   static const String schema = '/schema';
   static const String themes = '/ui/themes';
   static const String layouts = '/ui/layouts';
+  static const String themeTemplateEdit = '/ui/themes/edit';
+  static const String layoutTemplateEdit = '/ui/layouts/edit';
   static const String themeTemplateDetail = '/ui/themes/detail';
   static const String layoutTemplateDetail = '/ui/layouts/detail';
   static const String admin = '/admin';
+  static const String organisationEdit = '/admin/organisation/edit';
   static const String adminConfigHealth = '/admin/config-health';
   static const String adminAuditLogs = '/admin/audit-logs';
   static const String adminRateLimits = '/admin/rate-limits';

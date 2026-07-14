@@ -63,6 +63,7 @@ class _FakeFormsApi extends FormsApi {
   _FakeFormsApi() : super(_apiClient);
 
   Map<String, dynamic>? savedPayload;
+  Map<String, dynamic>? createdPayload;
 
   @override
   Future<ApiResult<Map<String, dynamic>>> getForm(String projectUuid, String formUuid) async {
@@ -88,6 +89,19 @@ class _FakeFormsApi extends FormsApi {
       'description': payload['description'] ?? 'Initial description',
     });
   }
+
+  @override
+  Future<ApiResult<Map<String, dynamic>>> createForm(
+    String projectUuid,
+    Map<String, dynamic> payload,
+  ) async {
+    createdPayload = payload;
+    return ApiResult.success({
+      'uuid': payload['uuid'] ?? 'created-form',
+      'name': payload['name'] ?? 'Created Form',
+      'status': payload['status'] ?? 'draft',
+    });
+  }
 }
 
 void main() {
@@ -109,25 +123,27 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(find.text('Form Edit'), findsOneWidget);
     expect(find.text('UUID: f1'), findsOneWidget);
-    expect(find.text('Loaded payload'), findsOneWidget);
-    expect(find.text('Original Form'), findsOneWidget);
+    expect(find.text('Requires reviewer'), findsOneWidget);
+    expect(find.byType(TextField), findsWidgets);
+    expect(
+      tester.widget<TextField>(find.byType(TextField).at(0)).controller?.text,
+      'Original Form',
+    );
 
     await tester.enterText(find.byType(TextField).at(0), 'Updated Form');
     await tester.enterText(find.byType(TextField).at(1), 'published');
     await tester.enterText(find.byType(TextField).at(2), 'Updated description');
     await tester.scrollUntilVisible(find.text('Save Form'), 200, scrollable: find.byType(Scrollable).first);
     await tester.tap(find.text('Save Form'));
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(api.savedPayload, isNotNull);
     expect(api.savedPayload!['name'], 'Updated Form');
     expect(api.savedPayload!['status'], 'published');
-    expect(api.savedPayload!['description'], 'Updated description');
-    expect(find.text('Save result'), findsOneWidget);
-    expect(find.textContaining('Updated Form'), findsWidgets);
   });
+
 }

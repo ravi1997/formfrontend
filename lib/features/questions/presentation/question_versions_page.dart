@@ -24,15 +24,56 @@ class QuestionVersionsPage extends StatefulWidget {
 class _QuestionVersionsPageState extends State<QuestionVersionsPage> {
   late Future<ApiResult<List<dynamic>>> _future;
 
+  String _textOf(dynamic value, [String fallback = 'Unknown']) {
+    final text = value?.toString();
+    return text == null || text.isEmpty ? fallback : text;
+  }
+
+  Widget _versionCard(dynamic version, int index) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Version ${index + 1}',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Text('UUID: ${_textOf(version is Map ? version['uuid'] : null)}'),
+            Text(
+              'Status: ${_textOf(version is Map ? version['status'] : null)}',
+            ),
+            Text(
+              'Created: ${_textOf(version is Map ? version['created'] : null)}',
+            ),
+            Text(
+              'Created by: ${_textOf(version is Map ? version['created_by'] : null)}',
+            ),
+            Text(
+              'Updated: ${_textOf(version is Map ? version['updated'] : null)}',
+            ),
+            Text(
+              'Updated by: ${_textOf(version is Map ? version['updated_by'] : null)}',
+            ),
+            const SizedBox(height: 8),
+            SelectableText(version.toString()),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
     _future = context.read<QuestionsApi>().listQuestionVersions(
-          projectUuid: widget.projectUuid,
-          formUuid: widget.formUuid,
-          sectionUuid: widget.sectionUuid,
-          questionUuid: widget.questionUuid,
-        );
+      projectUuid: widget.projectUuid,
+      formUuid: widget.formUuid,
+      sectionUuid: widget.sectionUuid,
+      questionUuid: widget.questionUuid,
+    );
   }
 
   @override
@@ -42,7 +83,9 @@ class _QuestionVersionsPageState extends State<QuestionVersionsPage> {
       body: FutureBuilder<ApiResult<List<dynamic>>>(
         future: _future,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
           return snapshot.data!.when(
             success: (versions) => ListView(
               padding: const EdgeInsets.all(16),
@@ -53,7 +96,10 @@ class _QuestionVersionsPageState extends State<QuestionVersionsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Question Versions', style: Theme.of(context).textTheme.titleMedium),
+                        Text(
+                          'Question Versions',
+                          style: Theme.of(context).textTheme.titleMedium,
+                        ),
                         const SizedBox(height: 8),
                         Text('Version count: ${versions.length}'),
                       ],
@@ -64,21 +110,7 @@ class _QuestionVersionsPageState extends State<QuestionVersionsPage> {
                 ...versions.asMap().entries.map(
                   (entry) => Padding(
                     padding: const EdgeInsets.only(bottom: 12),
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Version ${entry.key + 1}', style: Theme.of(context).textTheme.titleMedium),
-                            const SizedBox(height: 8),
-                            Text('Type: ${entry.value.runtimeType}'),
-                            const SizedBox(height: 8),
-                            SelectableText(entry.value.toString()),
-                          ],
-                        ),
-                      ),
-                    ),
+                    child: _versionCard(entry.value, entry.key),
                   ),
                 ),
               ],

@@ -13,15 +13,6 @@ class ProjectsListPage extends StatefulWidget {
 
 class _ProjectsListPageState extends State<ProjectsListPage> {
   late Future<ApiResult<List<dynamic>>> _future;
-  final _createNameController = TextEditingController();
-  final _editNameController = TextEditingController();
-
-  @override
-  void dispose() {
-    _createNameController.dispose();
-    _editNameController.dispose();
-    super.dispose();
-  }
 
   @override
   void initState() {
@@ -36,70 +27,19 @@ class _ProjectsListPageState extends State<ProjectsListPage> {
     await _future;
   }
 
-  Future<void> _createProject() async {
-    final name = _createNameController.text.trim();
-    if (name.isEmpty) return;
-    final result = await context.read<ProjectsApi>().createProject({'name': name});
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.isSuccess ? 'Project created' : result.errorOrNull?.message ?? 'Create failed'),
-        ),
-      );
-    }
-    if (result.isSuccess) {
-      _createNameController.clear();
-      await _refresh();
-    }
-  }
-
-  Future<void> _updateProject(String projectUuid, String currentName) async {
-    final projectsApi = context.read<ProjectsApi>();
-    _editNameController.text = currentName;
-    final name = await showDialog<String>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Edit project'),
-        content: TextField(
-          controller: _editNameController,
-          decoration: const InputDecoration(labelText: 'Project name'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(dialogContext, _editNameController.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    if (name == null || name.isEmpty) return;
-    final result = await projectsApi.updateProject(projectUuid, {'name': name});
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.isSuccess ? 'Project updated' : result.errorOrNull?.message ?? 'Update failed'),
-        ),
-      );
-    }
-    if (result.isSuccess) {
-      await _refresh();
-    }
-  }
-
   Future<void> _deleteProject(String projectUuid) async {
     final projectsApi = context.read<ProjectsApi>();
     final result = await projectsApi.deleteProject(projectUuid);
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.isSuccess ? 'Project deleted' : result.errorOrNull?.message ?? 'Delete failed'),
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          result.isSuccess
+              ? 'Project deleted'
+              : result.errorOrNull?.message ?? 'Delete failed',
         ),
-      );
-    }
+      ),
+    );
     if (result.isSuccess) {
       await _refresh();
     }
@@ -107,7 +47,13 @@ class _ProjectsListPageState extends State<ProjectsListPage> {
 
   String _labelFor(dynamic item) {
     if (item is Map<String, dynamic>) {
-      return (item['name'] ?? item['title'] ?? item['slug'] ?? item['uuid'] ?? item['id'] ?? 'Unnamed project').toString();
+      return (item['name'] ??
+              item['title'] ??
+              item['slug'] ??
+              item['uuid'] ??
+              item['id'] ??
+              'Unnamed project')
+          .toString();
     }
     return item.toString();
   }
@@ -120,31 +66,8 @@ class _ProjectsListPageState extends State<ProjectsListPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              showDialog<void>(
-                context: context,
-                builder: (dialogContext) => AlertDialog(
-                  title: const Text('Create project'),
-                  content: TextField(
-                    controller: _createNameController,
-                    decoration: const InputDecoration(labelText: 'Project name'),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(dialogContext),
-                      child: const Text('Cancel'),
-                    ),
-                    ElevatedButton(
-                      onPressed: () async {
-                        Navigator.pop(dialogContext);
-                        await _createProject();
-                      },
-                      child: const Text('Create'),
-                    ),
-                  ],
-                ),
-              );
-            },
+            onPressed: () =>
+                Navigator.of(context).pushNamed(RouteNames.projectForm),
           ),
         ],
       ),
@@ -174,13 +97,16 @@ class _ProjectsListPageState extends State<ProjectsListPage> {
                     onTap: uuid.isEmpty
                         ? null
                         : () => Navigator.of(context).pushNamed(
-                              RouteNames.projectDetail,
-                              arguments: uuid,
-                            ),
+                            RouteNames.projectDetail,
+                            arguments: uuid,
+                          ),
                     trailing: PopupMenuButton<String>(
                       onSelected: (value) {
                         if (value == 'edit') {
-                          _updateProject(uuid, _labelFor(project));
+                          Navigator.of(context).pushNamed(
+                            RouteNames.projectForm,
+                            arguments: {'projectUuid': uuid},
+                          );
                         } else if (value == 'delete') {
                           _deleteProject(uuid);
                         }
@@ -197,7 +123,11 @@ class _ProjectsListPageState extends State<ProjectsListPage> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
                   const SizedBox(height: 120),
-                  Icon(Icons.error_outline, size: 48, color: Theme.of(context).colorScheme.error),
+                  Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
                   const SizedBox(height: 12),
                   Center(child: Text(error.message)),
                 ],

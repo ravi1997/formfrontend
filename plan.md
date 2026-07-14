@@ -14,9 +14,25 @@ This repository exposes a Flask/OpenAPI backend for:
 - Admin rate-limit operations
 - System health, readiness, metrics, and schema echo validation
 
-There is no existing Flutter app in this repository. The frontend should be built as a separate Flutter client that treats the backend API as the source of truth and consumes the OpenAPI document for typed client generation where possible.
+There is an existing Flutter app in this repository. The frontend should continue to evolve as the backend client of record, keep the backend API as the source of truth, and tighten contract alignment where the current app already overlaps the backend surface.
 
 This plan focuses on modules, file paths, pages, navigation, state, data flow, and backend integration. It deliberately excludes UI/visual design except where the design system must remain consistent with the product brand.
+
+## Current Implementation Status
+
+The current Flutter app already covers a meaningful portion of the backend-shaped surface:
+
+- app shell, auth shell, router, and route names
+- centralized API client, endpoint map, auth token storage, and auth/session state
+- project, form, section, question, and choice feature slices
+- workflow, response submission, admin, system, condition, and UI template feature slices
+- effective UI rendering for forms
+
+Verified runtime checks currently passing in this workspace:
+
+- `flutter analyze`
+- `flutter test test/api_contract_test.dart`
+- `flutter test test/widget_test.dart`
 
 ## Product Alignment
 
@@ -1021,7 +1037,7 @@ Dependency outcome:
 - The backend does not yet expose obvious list/detail endpoints for every condition/template/admin entity beyond the routes above; some pages will need to be read-only or action-oriented rather than full CRUD.
 - The action execution feature includes `frontend`-targeted steps, which suggests the Flutter client may eventually need a local action runner or deferred handler model.
 - RBAC is enforced server-side; the client should not invent authorization rules, only reflect backend-derived access states.
-- There is no existing Flutter code in this repository, so all app structure is proposed and not pre-aligned to a current client architecture.
+- There is already a Flutter client in this repository, so new work should align with the existing app shell, provider wiring, and feature modules instead of assuming a greenfield structure.
 
 ## Deferred Items
 

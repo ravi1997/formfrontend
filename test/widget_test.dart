@@ -339,6 +339,8 @@ void main() {
     final scaffoldState = tester.state<ScaffoldState>(find.byType(Scaffold).first);
     scaffoldState.openDrawer();
     await tester.pumpAndSettle();
+    await tester.drag(find.byType(ListView).last, const Offset(0, -600));
+    await tester.pumpAndSettle();
 
     expect(find.text('Projects'), findsWidgets);
     expect(find.text('Forms'), findsWidgets);

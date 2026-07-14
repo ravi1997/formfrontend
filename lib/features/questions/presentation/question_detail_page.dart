@@ -44,10 +44,43 @@ class _QuestionDetailPageState extends State<QuestionDetailPage> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           return snapshot.data!.when(
-            success: (data) => SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Text(data.toString()),
-            ),
+            success: (data) {
+              final label = data['label']?.toString() ?? data['name']?.toString() ?? 'Unnamed question';
+              final type = data['type']?.toString() ?? 'Unknown';
+              final requiredValue = data['required'];
+              final choiceCount = data['choices'] is List ? (data['choices'] as List).length : null;
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(label, style: Theme.of(context).textTheme.titleMedium),
+                            const SizedBox(height: 8),
+                            Text('Type: $type'),
+                            Text('Required: ${requiredValue ?? 'Unknown'}'),
+                            Text('Choices: ${choiceCount ?? 'Unknown'}'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: SelectableText(data.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
             failure: (error) => Center(child: Text(error.message)),
           );
         },

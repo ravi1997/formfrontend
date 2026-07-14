@@ -7,6 +7,7 @@ class RouteNames {
   static const String projectDetail = '/projects/detail';
   static const String forms = '/forms';
   static const String formDetail = '/forms/detail';
+  static const String formEdit = '/forms/edit';
   static const String formVersions = '/forms/versions';
   static const String formEffectiveUi = '/forms/effective-ui';
   static const String sections = '/sections';
@@ -18,6 +19,12 @@ class RouteNames {
   static const String choices = '/choices';
   static const String choiceEdit = '/choices/edit';
   static const String conditions = '/conditions';
+  static const String conditionBatchTest = '/conditions/batch-test';
+  static const String conditionVersions = '/conditions/versions';
+  static const String conditionApproval = '/conditions/approval';
+  static const String conditionAsync = '/conditions/async';
+  static const String conditionPresets = '/conditions/presets';
+  static const String conditionMonitoring = '/conditions/monitoring';
   static const String submit = '/responses/submit';
   static const String actions = '/responses/actions';
   static const String workflow = '/workflow';
@@ -27,6 +34,8 @@ class RouteNames {
   static const String schema = '/schema';
   static const String themes = '/ui/themes';
   static const String layouts = '/ui/layouts';
+  static const String themeTemplateDetail = '/ui/themes/detail';
+  static const String layoutTemplateDetail = '/ui/layouts/detail';
   static const String admin = '/admin';
   static const String adminConfigHealth = '/admin/config-health';
   static const String adminAuditLogs = '/admin/audit-logs';

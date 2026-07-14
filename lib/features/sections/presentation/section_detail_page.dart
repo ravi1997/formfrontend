@@ -41,10 +41,43 @@ class _SectionDetailPageState extends State<SectionDetailPage> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           return snapshot.data!.when(
-            success: (data) => SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Text(data.toString()),
-            ),
+            success: (data) {
+              final name = data['name']?.toString() ?? 'Unnamed section';
+              final status = data['status']?.toString() ?? 'Unknown';
+              final questionCount = data['questions'] is List ? (data['questions'] as List).length : null;
+              final position = data['position']?.toString() ?? data['order']?.toString() ?? 'Unknown';
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(name, style: Theme.of(context).textTheme.titleMedium),
+                            const SizedBox(height: 8),
+                            Text('Status: $status'),
+                            Text('Position: $position'),
+                            Text('Questions: ${questionCount ?? 'Unknown'}'),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: SelectableText(data.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
             failure: (error) => Center(child: Text(error.message)),
           );
         },

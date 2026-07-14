@@ -28,13 +28,44 @@ class _LayoutTemplatesPageState extends State<LayoutTemplatesPage> {
         builder: (context, snapshot) {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           return snapshot.data!.when(
-            success: (templates) => ListView.separated(
+            success: (templates) => ListView(
               padding: const EdgeInsets.all(16),
-              itemCount: templates.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (context, index) => ListTile(
-                title: Text(templates[index].toString()),
-              ),
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Layout Templates', style: Theme.of(context).textTheme.titleMedium),
+                        const SizedBox(height: 8),
+                        Text('Template count: ${templates.length}'),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ...templates.asMap().entries.map(
+                  (entry) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Template ${entry.key + 1}', style: Theme.of(context).textTheme.titleMedium),
+                            const SizedBox(height: 8),
+                            Text('Type: ${entry.value.runtimeType}'),
+                            const SizedBox(height: 8),
+                            SelectableText(entry.value.toString()),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             failure: (error) => Center(child: Text(error.message)),
           );

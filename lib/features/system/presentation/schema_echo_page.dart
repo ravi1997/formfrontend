@@ -28,7 +28,46 @@ class _SchemaEchoPageState extends State<SchemaEchoPage> {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           final result = snapshot.data!;
           return result.when(
-            success: (data) => Center(child: Text(data.toString())),
+            success: (data) {
+              final status = data['status']?.toString() ?? 'Unknown';
+              final echo = data['echo'] ?? data['data'];
+              final source = data['source']?.toString() ?? 'backend';
+
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Schema Echo Summary', style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          Text('Status: $status'),
+                          Text('Echo present: ${echo != null ? 'yes' : 'no'}'),
+                          Text('Source: $source'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Schema payload', style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          SelectableText(data.toString()),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
             failure: (error) => Center(child: Text(error.message)),
           );
         },

@@ -34,7 +34,21 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             children: [
               Text(title, style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 8),
-              Text(data.toString()),
+              if (title == 'Config Health')
+                Text('Status: ${data['status']?.toString() ?? 'Unknown'}')
+              else if (title == 'Audit Logs')
+                Text('Entries: ${(data is List ? data.length : 0)}')
+              else if (title == 'Rate Limit Status')
+                Text('Status: ${data['status']?.toString() ?? 'Unknown'}'),
+              const SizedBox(height: 8),
+              if (title == 'Config Health')
+                Text('Checks: ${data['checks'] is List ? (data['checks'] as List).length : 'Unknown'}')
+              else if (title == 'Audit Logs')
+                Text('Latest entry type: ${data is List && data.isNotEmpty ? data.first.runtimeType : 'Unknown'}')
+              else if (title == 'Rate Limit Status')
+                Text('Fields: ${data is Map<String, dynamic> ? data.length : 'Unknown'}'),
+              const SizedBox(height: 8),
+              SelectableText(data.toString()),
             ],
           ),
           failure: (error) => Column(
@@ -45,6 +59,24 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
               Text(error.message),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _statusChip(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -61,12 +93,35 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
             return const Center(child: CircularProgressIndicator());
           }
           final results = snapshot.data!;
+          final configHealth = results[0];
+          final auditLogs = results[1];
+          final rateLimitStatus = results[2];
+
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              _summaryCard('Config Health', results[0]),
-              _summaryCard('Audit Logs', results[1]),
-              _summaryCard('Rate Limit Status', results[2]),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  _statusChip(
+                    configHealth.isSuccess ? 'Config healthy' : 'Config error',
+                    configHealth.isSuccess ? Colors.green : Colors.red,
+                  ),
+                  _statusChip(
+                    auditLogs.isSuccess ? 'Audit logs loaded' : 'Audit logs error',
+                    auditLogs.isSuccess ? Colors.green : Colors.red,
+                  ),
+                  _statusChip(
+                    rateLimitStatus.isSuccess ? 'Rate limits loaded' : 'Rate limits error',
+                    rateLimitStatus.isSuccess ? Colors.green : Colors.red,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              _summaryCard('Config Health', configHealth),
+              _summaryCard('Audit Logs', auditLogs),
+              _summaryCard('Rate Limit Status', rateLimitStatus),
             ],
           );
         },

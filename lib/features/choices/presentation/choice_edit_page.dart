@@ -48,7 +48,42 @@ class _ChoiceEditPageState extends State<ChoiceEditPage> {
           return snapshot.data!.when(
             success: (choices) => ListView(
               padding: const EdgeInsets.all(16),
-              children: choices.map((choice) => Text(choice.toString())).toList(),
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Choice Editor', style: Theme.of(context).textTheme.titleMedium),
+                        const SizedBox(height: 8),
+                        Text('Choice count: ${choices.length}'),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ...choices.asMap().entries.map(
+                  (entry) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Choice ${entry.key + 1}', style: Theme.of(context).textTheme.titleMedium),
+                            const SizedBox(height: 8),
+                            Text('Type: ${entry.value.runtimeType}'),
+                            const SizedBox(height: 8),
+                            SelectableText(entry.value.toString()),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             failure: (error) => Center(child: Text(error.message)),
           );

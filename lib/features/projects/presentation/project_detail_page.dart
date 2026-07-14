@@ -32,10 +32,40 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
             return const Center(child: CircularProgressIndicator());
           }
           return snapshot.data!.when(
-            success: (data) => SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Text(data.toString()),
-            ),
+            success: (data) {
+              final name = data['name']?.toString() ?? 'Unnamed project';
+              final status = data['status']?.toString() ?? 'Unknown';
+              final versionCount = data['versions'] is List ? (data['versions'] as List).length : null;
+              final owner = data['owner']?.toString() ?? data['created_by']?.toString() ?? 'Unknown';
+
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(name, style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          Text('Status: $status'),
+                          Text('Owner: $owner'),
+                          Text('Versions: ${versionCount ?? 'Unknown'}'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: SelectableText(data.toString()),
+                    ),
+                  ),
+                ],
+              );
+            },
             failure: (error) => Center(child: Text(error.message)),
           );
         },

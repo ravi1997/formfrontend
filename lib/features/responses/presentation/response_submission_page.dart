@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:formfrontend/core/api/api_result.dart';
 import 'package:formfrontend/features/forms/data/forms_api.dart';
 import 'package:formfrontend/features/forms/presentation/widgets/effective_ui_form.dart';
 import 'package:formfrontend/features/projects/data/projects_api.dart';
@@ -18,10 +19,11 @@ class _ResponseSubmissionPageState extends State<ResponseSubmissionPage> {
   late Future<List<dynamic>> _projectsFuture;
   String? _projectUuid;
   String? _formUuid;
-  Future<dynamic>? _formsFuture;
-  Future<dynamic>? _effectiveUiFuture;
+  Future<ApiResult<List<dynamic>>>? _formsFuture;
+  Future<ApiResult<Map<String, dynamic>>>? _effectiveUiFuture;
   Map<String, dynamic> _effectiveUi = <String, dynamic>{};
   final _responseController = TextEditingController(text: '{"sample":"value"}');
+  ApiResult<Map<String, dynamic>>? _submitResult;
 
   @override
   void initState() {
@@ -56,14 +58,15 @@ class _ResponseSubmissionPageState extends State<ResponseSubmissionPage> {
   }
 
   Future<void> _loadEffectiveUi(String projectUuid, String formUuid) async {
+    final future = context.read<FormsApi>().getEffectiveUi(projectUuid, formUuid);
     setState(() {
-      _effectiveUiFuture = context.read<FormsApi>().getEffectiveUi(projectUuid, formUuid);
+      _effectiveUiFuture = future;
     });
-    final result = await _effectiveUiFuture;
+    final result = await future;
     if (!mounted) return;
     result.when(
       success: (ui) => setState(() {
-        _effectiveUi = ui is Map<String, dynamic> ? ui : <String, dynamic>{'value': ui};
+        _effectiveUi = ui;
       }),
       failure: (_) => setState(() {
         _effectiveUi = <String, dynamic>{};
@@ -99,11 +102,9 @@ class _ResponseSubmissionPageState extends State<ResponseSubmissionPage> {
       payload: parsed,
     );
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result.isSuccess ? 'Request sent' : result.errorOrNull?.message ?? 'Request failed'),
-        ),
-      );
+      setState(() {
+        _submitResult = result;
+      });
     }
   }
 
@@ -122,6 +123,36 @@ class _ResponseSubmissionPageState extends State<ResponseSubmissionPage> {
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              if (_submitResult != null) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: _submitResult!.when(
+                      success: (data) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Submission Result', style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          Text('Status: success'),
+                          const SizedBox(height: 8),
+                          SelectableText(data.toString()),
+                        ],
+                      ),
+                      failure: (error) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Submission Result', style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          Text('Status: failure'),
+                          const SizedBox(height: 8),
+                          Text(error.message),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               DropdownButtonFormField<String>(
                 initialValue: _projectUuid,
                 decoration: const InputDecoration(labelText: 'Project'),
@@ -138,18 +169,19 @@ class _ResponseSubmissionPageState extends State<ResponseSubmissionPage> {
                 },
               ),
               const SizedBox(height: 16),
-              FutureBuilder<dynamic>(
+              FutureBuilder<ApiResult<List<dynamic>>>(
                 future: _formsFuture,
                 builder: (context, formsSnapshot) {
                   if (!formsSnapshot.hasData) return const SizedBox.shrink();
                   return formsSnapshot.data!.when(
                     success: (forms) {
-                      if (forms.isEmpty) return const Text('No forms available');
-                      _formUuid ??= _uuidFor(forms.first);
+                      final formItems = forms;
+                      if (formItems.isEmpty) return const Text('No forms available');
+                      _formUuid ??= _uuidFor(formItems.first);
                       return DropdownButtonFormField<String>(
                         initialValue: _formUuid,
                         decoration: const InputDecoration(labelText: 'Form'),
-                        items: forms
+                        items: formItems
                             .map<DropdownMenuItem<String>>(
                               (e) => DropdownMenuItem<String>(
                                 value: _uuidFor(e),
@@ -173,7 +205,7 @@ class _ResponseSubmissionPageState extends State<ResponseSubmissionPage> {
                 },
               ),
               const SizedBox(height: 16),
-              FutureBuilder<dynamic>(
+              FutureBuilder<ApiResult<Map<String, dynamic>>>(
                 future: _projectUuid != null && _formUuid != null
                     ? (_effectiveUiFuture ??
                         context.read<FormsApi>().getEffectiveUi(
@@ -193,7 +225,7 @@ class _ResponseSubmissionPageState extends State<ResponseSubmissionPage> {
                   }
                   return uiSnapshot.data!.when(
                     success: (ui) => EffectiveUiForm(
-                      ui: ui is Map<String, dynamic> ? ui : _effectiveUi,
+                      ui: ui,
                       footer: TextField(
                         controller: _responseController,
                         decoration: const InputDecoration(

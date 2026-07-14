@@ -1,6 +1,7 @@
 import 'package:formfrontend/core/api/api_client.dart';
 import 'package:formfrontend/core/api/api_endpoints.dart';
 import 'package:formfrontend/core/api/api_result.dart';
+import 'package:formfrontend/core/api/api_response_parsers.dart';
 
 class ChoicesApi {
   final ApiClient _client;
@@ -15,7 +16,7 @@ class ChoicesApi {
   }) async {
     final result = await _client.get<Map<String, dynamic>>(ApiEndpoints.choices(projectUuid, formUuid, sectionUuid, questionUuid));
     return result.when(
-      success: (data) => ApiResult.success(data['items'] as List<dynamic>? ?? []),
+      success: (data) => ApiResult.success(ApiResponseParsers.parseList(data)),
       failure: (error) => ApiResult.failure(error),
     );
   }

@@ -30,10 +30,65 @@ class _ConditionPresetsPageState extends State<ConditionPresetsPage> {
             return const Center(child: CircularProgressIndicator());
           }
           return snapshot.data!.when(
-            success: (data) => SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Text(data.toString()),
-            ),
+            success: (data) {
+              final presets = data['presets'];
+              final presetList = presets is List ? presets : const [];
+              final presetCount = presetList.length;
+              final importSupport = data['import_supported']?.toString() ?? 'Unknown';
+              final exportSupport = data['export_supported']?.toString() ?? 'Unknown';
+              final source = data['source']?.toString() ?? 'backend';
+
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Preset Summary', style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          Text('Preset count: $presetCount'),
+                          Text('Import supported: $importSupport'),
+                          Text('Export supported: $exportSupport'),
+                          Text('Source: $source'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  if (presetList.isNotEmpty)
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('First preset', style: Theme.of(context).textTheme.titleMedium),
+                            const SizedBox(height: 8),
+                            SelectableText(presetList.first.toString()),
+                          ],
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Preset payload', style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          SelectableText(data.toString()),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
             failure: (error) => Center(child: Text(error.message)),
           );
         },

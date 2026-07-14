@@ -28,10 +28,47 @@ class _MetricsPageState extends State<MetricsPage> {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           final result = snapshot.data!;
           return result.when(
-            success: (data) => SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Text(data.toString()),
-            ),
+            success: (data) {
+              final status = data['status']?.toString() ?? 'Unknown';
+              final series = data['series'];
+              final seriesCount = series is List ? series.length : null;
+              final source = data['source']?.toString() ?? 'backend';
+
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Metrics Summary', style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          Text('Status: $status'),
+                          Text('Series: ${seriesCount ?? 'Unknown'}'),
+                          Text('Source: $source'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Metrics payload', style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          SelectableText(data.toString()),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
             failure: (error) => Center(child: Text(error.message)),
           );
         },

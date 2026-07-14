@@ -50,8 +50,7 @@ class _OrganisationManagementPageState extends State<OrganisationManagementPage>
     if (!mounted) return;
 
     result.when(
-      success: (data) {
-        final items = data['items'] as List<dynamic>? ?? [];
+      success: (items) {
         setState(() {
           _organisations = List<Map<String, dynamic>>.from(items.map((e) => Map<String, dynamic>.from(e)));
           _isLoading = false;
@@ -250,6 +249,24 @@ class _OrganisationManagementPageState extends State<OrganisationManagementPage>
       body: Column(
         children: [
           Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Organisation Summary', style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 8),
+                    Text('Loaded organisations: ${_organisations.length}'),
+                    Text('Active organisations: ${activeOrgs.length}'),
+                    Text('Filtered organisations: ${filteredOrgs.length}'),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               decoration: const InputDecoration(
@@ -281,7 +298,7 @@ class _OrganisationManagementPageState extends State<OrganisationManagementPage>
                           ],
                         ),
                       )
-                    : filteredOrgs.isEmpty
+                          : filteredOrgs.isEmpty
                         ? const Center(child: Text('No organisations found'))
                         : ListView.separated(
                             padding: const EdgeInsets.symmetric(horizontal: 16),

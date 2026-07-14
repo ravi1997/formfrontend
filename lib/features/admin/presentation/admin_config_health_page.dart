@@ -28,10 +28,50 @@ class _AdminConfigHealthPageState extends State<AdminConfigHealthPage> {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           final result = snapshot.data!;
           return result.when(
-            success: (data) => SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Text(data.toString()),
-            ),
+            success: (data) {
+              final status = data['status']?.toString() ?? 'Unknown';
+              final checks = data['checks'];
+              final checkCount = checks is List ? checks.length : null;
+              final warnings = data['warnings'];
+              final warningCount = warnings is List ? warnings.length : null;
+              final source = data['source']?.toString() ?? 'backend';
+
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Config Health Summary', style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          Text('Status: $status'),
+                          Text('Checks: ${checkCount ?? 'Unknown'}'),
+                          Text('Warnings: ${warningCount ?? 'Unknown'}'),
+                          Text('Source: $source'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Config payload', style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          SelectableText(data.toString()),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
             failure: (error) => Center(child: Text(error.message)),
           );
         },

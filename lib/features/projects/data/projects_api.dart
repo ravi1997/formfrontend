@@ -1,6 +1,7 @@
 import 'package:formfrontend/core/api/api_client.dart';
 import 'package:formfrontend/core/api/api_endpoints.dart';
 import 'package:formfrontend/core/api/api_result.dart';
+import 'package:formfrontend/core/api/api_response_parsers.dart';
 
 class ProjectsApi {
   final ApiClient _client;
@@ -10,7 +11,7 @@ class ProjectsApi {
   Future<ApiResult<List<dynamic>>> listProjects() async {
     final result = await _client.get<Map<String, dynamic>>(ApiEndpoints.projects);
     return result.when(
-      success: (data) => ApiResult.success(data['items'] as List<dynamic>? ?? []),
+      success: (data) => ApiResult.success(ApiResponseParsers.parseList(data)),
       failure: (error) => ApiResult.failure(error),
     );
   }
@@ -37,7 +38,7 @@ class ProjectsApi {
   Future<ApiResult<List<dynamic>>> listProjectVersions(String projectUuid) async {
     final result = await _client.get<Map<String, dynamic>>(ApiEndpoints.projectVersions(projectUuid));
     return result.when(
-      success: (data) => ApiResult.success(data['items'] as List<dynamic>? ?? []),
+      success: (data) => ApiResult.success(ApiResponseParsers.parseList(data)),
       failure: (error) => ApiResult.failure(error),
     );
   }

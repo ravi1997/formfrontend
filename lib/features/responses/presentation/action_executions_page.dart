@@ -137,8 +137,22 @@ class _ActionExecutionsPageState extends State<ActionExecutionsPage> {
               _formsFuture ??= context.read<FormsApi>().listForms(_projectUuid!);
               return Column(
                 children: [
+                  Card(
+                    margin: const EdgeInsets.all(16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: const [
+                          Text('Action Executions'),
+                          SizedBox(height: 8),
+                          Text('Choose a project, form, section, question, and response to inspect backend execution history.'),
+                        ],
+                      ),
+                    ),
+                  ),
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: DropdownButtonFormField<String>(
                       initialValue: _projectUuid,
                       decoration: const InputDecoration(labelText: 'Project'),
@@ -266,7 +280,21 @@ class _ActionExecutionsPageState extends State<ActionExecutionsPage> {
                         return executionsSnapshot.data!.when(
                           success: (data) => SingleChildScrollView(
                             padding: const EdgeInsets.all(16),
-                            child: Text(data.toString()),
+                            child: Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Execution payload', style: Theme.of(context).textTheme.titleMedium),
+                                    const SizedBox(height: 8),
+                                    Text('Fields: ${data.keys.length}'),
+                                    const SizedBox(height: 8),
+                                    SelectableText(data.toString()),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
                           failure: (error) => Center(child: Text(error.message)),
                         );

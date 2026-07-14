@@ -153,19 +153,23 @@ class FormLayer extends StatelessWidget {
               separatorBuilder: (_, index) => const Divider(),
               itemBuilder: (context, index) {
                 final item = capturedInputs[index];
+                final dataText = item['data']?.toString() ?? '';
+                final timestampText = item['timestamp']?.toString() ?? 'Unknown';
+                final ruleText = item['rule']?.toString() ?? 'Unknown';
+                final typeText = item['type']?.toString() ?? 'Unknown';
                 return ListTile(
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: context.space16,
                     vertical: context.space8,
                   ),
                   title: Text(
-                    item['data'] as String,
+                    dataText,
                     style: context.bodyMedium.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
                   ),
                   subtitle: Text(
-                    'Time: ${item['timestamp']} • Rule: ${item['rule']}',
+                    'Time: $timestampText • Rule: $ruleText',
                     style: context.uiMicro,
                   ),
                   trailing: Container(
@@ -174,15 +178,15 @@ class FormLayer extends StatelessWidget {
                       vertical: context.space2,
                     ),
                     decoration: BoxDecoration(
-                      color: item['type'] == 'Critical'
+                      color: typeText == 'Critical'
                           ? Colors.red[50]
                           : AppColors.surfaceSubtle,
                       borderRadius: context.borderSm,
                     ),
                     child: Text(
-                      item['type'] as String,
+                      typeText,
                       style: context.uiMicro.copyWith(
-                        color: item['type'] == 'Critical'
+                        color: typeText == 'Critical'
                             ? Colors.red[700]
                             : AppColors.inkBlack,
                       ),

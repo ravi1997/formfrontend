@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:formfrontend/features/forms/presentation/widgets/effective_ui_field_utils.dart';
 
 class EffectiveUiForm extends StatefulWidget {
   final Map<String, dynamic> ui;
@@ -42,55 +43,25 @@ class _EffectiveUiFormState extends State<EffectiveUiForm> {
   }
 
   Map<String, dynamic> extractPayload() {
-    final payload = <String, dynamic>{};
-    for (final entry in _controllers.entries) {
-      final definition = _fieldDefinitions[entry.key] ?? const <String, dynamic>{};
-      final type = (definition['type'] ?? 'text').toString();
-      final raw = entry.value.text.trim();
-      if (raw.isEmpty) {
-        payload[entry.key] = '';
-        continue;
-      }
-
-      switch (type) {
-        case 'int':
-        case 'integer':
-          payload[entry.key] = int.tryParse(raw) ?? raw;
-          break;
-        case 'number':
-        case 'float':
-        case 'double':
-          payload[entry.key] = double.tryParse(raw) ?? raw;
-          break;
-        case 'bool':
-        case 'boolean':
-          payload[entry.key] = raw.toLowerCase() == 'true';
-          break;
-        default:
-          payload[entry.key] = raw;
-      }
-    }
-    return payload;
+    return EffectiveUiFieldUtils.coerceValue(
+      _fieldDefinitions,
+      _controllers.map((key, controller) => MapEntry(key, controller.text)),
+    );
   }
 
   List<String> validateRequired() {
-    final errors = <String>[];
-    for (final entry in _fieldDefinitions.entries) {
-      final definition = entry.value;
-      final required = definition['required'] == true;
-      if (!required) continue;
-      final controller = _controllers[entry.key];
-      if (controller == null || controller.text.trim().isEmpty) {
-        final label = (definition['label'] ?? definition['title'] ?? entry.key).toString();
-        errors.add('$label is required');
-      }
-    }
-    return errors;
+    return EffectiveUiFieldUtils.validateRequired(
+      _fieldDefinitions,
+      _controllers.map((key, controller) => MapEntry(key, controller.text)),
+    );
   }
 
   Widget _buildField(dynamic field, [int index = 0]) {
     if (field is! Map<String, dynamic>) {
-      return ListTile(title: Text(field.toString()));
+      return ListTile(
+        title: Text('Field ${index + 1}'),
+        subtitle: Text(field.toString()),
+      );
     }
 
     final key = (field['key'] ?? field['name'] ?? field['id'] ?? 'field_$index').toString();
@@ -134,7 +105,21 @@ class _EffectiveUiFormState extends State<EffectiveUiForm> {
         ));
       }
     } else {
-      widgets.add(Text(widget.ui.toString()));
+      widgets.add(
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Effective UI payload', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 8),
+                SelectableText(widget.ui.toString()),
+              ],
+            ),
+          ),
+        ),
+      );
     }
 
     return widgets;

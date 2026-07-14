@@ -28,13 +28,70 @@ class _AdminRateLimitsPageState extends State<AdminRateLimitsPage> {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           final result = snapshot.data!;
           return result.when(
-            success: (data) => ListView(
-              padding: const EdgeInsets.all(16),
-              children: [Text(data.toString())],
-            ),
+            success: (data) {
+              final entries = data is Map<String, dynamic> ? data.entries.toList() : <MapEntry<String, dynamic>>[];
+              final status = data is Map<String, dynamic> ? data['status']?.toString() ?? 'Unknown' : 'Unknown';
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  _StatusBanner(
+                    title: 'Rate limit status',
+                    subtitle: entries.isEmpty ? 'No structured data returned' : '$status · ${entries.length} fields returned',
+                  ),
+                  const SizedBox(height: 16),
+                  ...entries.map(
+                    (entry) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(entry.key, style: Theme.of(context).textTheme.titleMedium),
+                              const SizedBox(height: 8),
+                              Text('Type: ${entry.value.runtimeType}'),
+                              const SizedBox(height: 8),
+                              SelectableText(entry.value.toString()),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
             failure: (error) => Center(child: Text(error.message)),
           );
         },
+      ),
+    );
+  }
+}
+
+class _StatusBanner extends StatelessWidget {
+  final String title;
+  final String subtitle;
+
+  const _StatusBanner({
+    required this.title,
+    required this.subtitle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(subtitle),
+          ],
+        ),
       ),
     );
   }

@@ -400,11 +400,14 @@ class _DrawerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon),
-      title: Text(label),
-      selected: selected,
-      onTap: onTap,
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        leading: Icon(icon),
+        title: Text(label),
+        selected: selected,
+        onTap: onTap,
+      ),
     );
   }
 }

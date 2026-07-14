@@ -28,10 +28,36 @@ class _AdminAuditLogsPageState extends State<AdminAuditLogsPage> {
           if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
           final result = snapshot.data!;
           return result.when(
-            success: (data) => ListView(
-              padding: const EdgeInsets.all(16),
-              children: [Text(data.toString())],
-            ),
+            success: (data) {
+              final logs = data is List ? data : const <dynamic>[];
+              return ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: logs.length,
+                separatorBuilder: (_, _) => const Divider(height: 1),
+                itemBuilder: (context, index) {
+                  final log = logs[index];
+                  final entry = log is Map<String, dynamic> ? log : <String, dynamic>{'message': log.toString()};
+                  return Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            entry['message']?.toString() ?? entry['action']?.toString() ?? 'Audit entry',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          Text('Actor: ${entry['actor']?.toString() ?? entry['user']?.toString() ?? 'Unknown'}'),
+                          Text('Target: ${entry['target']?.toString() ?? entry['resource']?.toString() ?? 'Unknown'}'),
+                          Text('Time: ${entry['created_at']?.toString() ?? entry['timestamp']?.toString() ?? 'Unknown'}'),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
             failure: (error) => Center(child: Text(error.message)),
           );
         },

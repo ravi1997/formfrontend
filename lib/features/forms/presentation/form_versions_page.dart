@@ -37,13 +37,44 @@ class _FormVersionsPageState extends State<FormVersionsPage> {
             return const Center(child: CircularProgressIndicator());
           }
           return snapshot.data!.when(
-            success: (versions) => ListView.separated(
+            success: (versions) => ListView(
               padding: const EdgeInsets.all(16),
-              itemCount: versions.length,
-              separatorBuilder: (_, _) => const Divider(height: 1),
-              itemBuilder: (context, index) => ListTile(
-                title: Text(versions[index].toString()),
-              ),
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Form Versions', style: Theme.of(context).textTheme.titleMedium),
+                        const SizedBox(height: 8),
+                        Text('Version count: ${versions.length}'),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ...versions.asMap().entries.map(
+                  (entry) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Version ${entry.key + 1}', style: Theme.of(context).textTheme.titleMedium),
+                            const SizedBox(height: 8),
+                            Text('Type: ${entry.value.runtimeType}'),
+                            const SizedBox(height: 8),
+                            SelectableText(entry.value.toString()),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             failure: (error) => Center(child: Text(error.message)),
           );

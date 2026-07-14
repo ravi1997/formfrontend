@@ -3,8 +3,10 @@ class RouteNames {
   static const String register = '/register';
   static const String main = '/';
   static const String dashboard = '/dashboard';
+  static const String search = '/search';
   static const String projects = '/projects';
   static const String projectDetail = '/projects/detail';
+  static const String projectForm = '/projects/form';
   static const String forms = '/forms';
   static const String formDetail = '/forms/detail';
   static const String formEdit = '/forms/edit';
@@ -12,9 +14,11 @@ class RouteNames {
   static const String formEffectiveUi = '/forms/effective-ui';
   static const String sections = '/sections';
   static const String sectionDetail = '/sections/detail';
+  static const String sectionEdit = '/sections/edit';
   static const String sectionVersions = '/sections/versions';
   static const String questions = '/questions';
   static const String questionDetail = '/questions/detail';
+  static const String questionEdit = '/questions/edit';
   static const String questionVersions = '/questions/versions';
   static const String choices = '/choices';
   static const String choiceEdit = '/choices/edit';

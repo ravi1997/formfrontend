@@ -9,41 +9,66 @@ void main() {
   test('ApiEndpoints build expected nested resource paths', () {
     expect(
       ApiEndpoints.choices('p1', 'f1', 's1', 'q1'),
-      '/projects/p1/forms/f1/sections/s1/questions/q1/choices',
+      '/api/v1/projects/p1/forms/f1/sections/s1/questions/q1/choices',
     );
     expect(
       ApiEndpoints.sectionDetail('p1', 'f1', 's1'),
-      '/projects/p1/forms/f1/sections/s1',
+      '/api/v1/projects/p1/forms/f1/sections/s1',
     );
     expect(
       ApiEndpoints.questionVersions('p1', 'f1', 's1', 'q1'),
-      '/projects/p1/forms/f1/sections/s1/questions/q1/versions',
+      '/api/v1/projects/p1/forms/f1/sections/s1/questions/q1/versions',
     );
     expect(
       ApiEndpoints.actionExecutions('p1', 'f1', 'r1'),
-      '/projects/p1/forms/f1/responses/r1/action-executions',
+      '/api/v1/projects/p1/forms/f1/responses/r1/action-executions',
     );
     expect(
       ApiEndpoints.publicResponses('p1', 'f1'),
-      '/public/projects/p1/forms/f1/responses',
+      '/api/v1/public/projects/p1/forms/f1/responses',
     );
     expect(
       ApiEndpoints.submitFormWorkflow('p1', 'f1'),
-      '/projects/p1/forms/f1/workflow/submit',
+      '/api/v1/projects/p1/forms/f1/workflow/submit',
     );
-    expect(ApiEndpoints.projects, '/projects');
-    expect(ApiEndpoints.projectDetail('p1'), '/projects/p1');
-    expect(ApiEndpoints.forms('p1'), '/projects/p1/forms');
-    expect(ApiEndpoints.projectDetail('p1'), '/projects/p1');
-    expect(ApiEndpoints.formDetail('p1', 'f1'), '/projects/p1/forms/f1');
-    expect(ApiEndpoints.formVersions('p1', 'f1'), '/projects/p1/forms/f1/versions');
-    expect(ApiEndpoints.effectiveUi('p1', 'f1'), '/projects/p1/forms/f1/ui/effective');
-    expect(ApiEndpoints.sectionVersions('p1', 'f1', 's1'), '/projects/p1/forms/f1/sections/s1/versions');
-    expect(ApiEndpoints.sectionDetail('p1', 'f1', 's1'), '/projects/p1/forms/f1/sections/s1');
-    expect(ApiEndpoints.questionDetail('p1', 'f1', 's1', 'q1'), '/projects/p1/forms/f1/sections/s1/questions/q1');
-    expect(ApiEndpoints.questionVersions('p1', 'f1', 's1', 'q1'), '/projects/p1/forms/f1/sections/s1/questions/q1/versions');
-    expect(ApiEndpoints.choiceDetail('p1', 'f1', 's1', 'q1', 'c1'), '/projects/p1/forms/f1/sections/s1/questions/q1/choices/c1');
-    expect(ApiEndpoints.choices('p1', 'f1', 's1', 'q1'), '/projects/p1/forms/f1/sections/s1/questions/q1/choices');
+    expect(ApiEndpoints.projects, '/api/v1/projects');
+    expect(ApiEndpoints.search, '/search');
+    expect(ApiEndpoints.projectDetail('p1'), '/api/v1/projects/p1');
+    expect(ApiEndpoints.forms('p1'), '/api/v1/projects/p1/forms');
+    expect(ApiEndpoints.projectDetail('p1'), '/api/v1/projects/p1');
+    expect(ApiEndpoints.formDetail('p1', 'f1'), '/api/v1/projects/p1/forms/f1');
+    expect(
+      ApiEndpoints.formVersions('p1', 'f1'),
+      '/api/v1/projects/p1/forms/f1/versions',
+    );
+    expect(
+      ApiEndpoints.effectiveUi('p1', 'f1'),
+      '/api/v1/projects/p1/forms/f1/ui/effective',
+    );
+    expect(
+      ApiEndpoints.sectionVersions('p1', 'f1', 's1'),
+      '/api/v1/projects/p1/forms/f1/sections/s1/versions',
+    );
+    expect(
+      ApiEndpoints.sectionDetail('p1', 'f1', 's1'),
+      '/api/v1/projects/p1/forms/f1/sections/s1',
+    );
+    expect(
+      ApiEndpoints.questionDetail('p1', 'f1', 's1', 'q1'),
+      '/api/v1/projects/p1/forms/f1/sections/s1/questions/q1',
+    );
+    expect(
+      ApiEndpoints.questionVersions('p1', 'f1', 's1', 'q1'),
+      '/api/v1/projects/p1/forms/f1/sections/s1/questions/q1/versions',
+    );
+    expect(
+      ApiEndpoints.choiceDetail('p1', 'f1', 's1', 'q1', 'c1'),
+      '/api/v1/projects/p1/forms/f1/sections/s1/questions/q1/choices/c1',
+    );
+    expect(
+      ApiEndpoints.choices('p1', 'f1', 's1', 'q1'),
+      '/api/v1/projects/p1/forms/f1/sections/s1/questions/q1/choices',
+    );
     expect(ApiEndpoints.conditionsMetadata, '/conditions/metadata');
     expect(ApiEndpoints.presets, '/conditions/presets');
     expect(ApiEndpoints.testCondition, '/conditions/test');
@@ -96,28 +121,31 @@ void main() {
     expect(profile.roles, containsAll(['super_admin', 'operator']));
   });
 
-  test('Auth model parsing tolerates stringified and numeric backend fields', () {
-    final auth = AuthResponse.fromJson({
-      'access_token': 123,
-      'refresh_token': 'refresh',
-      'session_uuid': 456,
-      'user': {
-        'id': 789,
-        'email': 'ops@example.com',
-        'name': 'Ops',
-        'designation': 42,
-        'phone': 5551234,
-        'is_super_admin': 1,
-      },
-    });
+  test(
+    'Auth model parsing tolerates stringified and numeric backend fields',
+    () {
+      final auth = AuthResponse.fromJson({
+        'access_token': 123,
+        'refresh_token': 'refresh',
+        'session_uuid': 456,
+        'user': {
+          'id': 789,
+          'email': 'ops@example.com',
+          'name': 'Ops',
+          'designation': 42,
+          'phone': 5551234,
+          'is_super_admin': 1,
+        },
+      });
 
-    expect(auth.accessToken, '123');
-    expect(auth.sessionUuid, '456');
-    expect(auth.user?.uuid, '789');
-    expect(auth.user?.designation, '42');
-    expect(auth.user?.phone, '5551234');
-    expect(auth.user?.isSuperAdmin, isTrue);
-  });
+      expect(auth.accessToken, '123');
+      expect(auth.sessionUuid, '456');
+      expect(auth.user?.uuid, '789');
+      expect(auth.user?.designation, '42');
+      expect(auth.user?.phone, '5551234');
+      expect(auth.user?.isSuperAdmin, isTrue);
+    },
+  );
 
   test('AppRouter maps backend domain routes into the shell', () {
     final projectDetailRoute = AppRouter.onGenerateRoute(
@@ -156,13 +184,23 @@ void main() {
     final questionDetailRoute = AppRouter.onGenerateRoute(
       const RouteSettings(
         name: RouteNames.questionDetail,
-        arguments: {'projectUuid': 'p1', 'formUuid': 'f1', 'sectionUuid': 's1', 'questionUuid': 'q1'},
+        arguments: {
+          'projectUuid': 'p1',
+          'formUuid': 'f1',
+          'sectionUuid': 's1',
+          'questionUuid': 'q1',
+        },
       ),
     );
     final questionVersionsRoute = AppRouter.onGenerateRoute(
       const RouteSettings(
         name: RouteNames.questionVersions,
-        arguments: {'projectUuid': 'p1', 'formUuid': 'f1', 'sectionUuid': 's1', 'questionUuid': 'q1'},
+        arguments: {
+          'projectUuid': 'p1',
+          'formUuid': 'f1',
+          'sectionUuid': 's1',
+          'questionUuid': 'q1',
+        },
       ),
     );
     final choiceEditRoute = AppRouter.onGenerateRoute(
@@ -177,18 +215,39 @@ void main() {
         },
       ),
     );
-    final conditionsRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditions));
-    final conditionBatchRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditionBatchTest));
-    final conditionVersionsRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditionVersions));
-    final conditionApprovalRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditionApproval));
-    final conditionAsyncRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditionAsync));
-    final conditionPresetsRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditionPresets));
-    final conditionMonitoringRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.conditionMonitoring));
+    final conditionsRoute = AppRouter.onGenerateRoute(
+      const RouteSettings(name: RouteNames.conditions),
+    );
+    final conditionBatchRoute = AppRouter.onGenerateRoute(
+      const RouteSettings(name: RouteNames.conditionBatchTest),
+    );
+    final conditionVersionsRoute = AppRouter.onGenerateRoute(
+      const RouteSettings(name: RouteNames.conditionVersions),
+    );
+    final conditionApprovalRoute = AppRouter.onGenerateRoute(
+      const RouteSettings(name: RouteNames.conditionApproval),
+    );
+    final conditionAsyncRoute = AppRouter.onGenerateRoute(
+      const RouteSettings(name: RouteNames.conditionAsync),
+    );
+    final conditionPresetsRoute = AppRouter.onGenerateRoute(
+      const RouteSettings(name: RouteNames.conditionPresets),
+    );
+    final conditionMonitoringRoute = AppRouter.onGenerateRoute(
+      const RouteSettings(name: RouteNames.conditionMonitoring),
+    );
     final monitoringRoute = AppRouter.onGenerateRoute(
       const RouteSettings(name: RouteNames.conditions, arguments: 'monitoring'),
     );
-    final projectsRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.projects));
-    final themesRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.themes));
+    final projectsRoute = AppRouter.onGenerateRoute(
+      const RouteSettings(name: RouteNames.projects),
+    );
+    final searchRoute = AppRouter.onGenerateRoute(
+      const RouteSettings(name: RouteNames.search),
+    );
+    final themesRoute = AppRouter.onGenerateRoute(
+      const RouteSettings(name: RouteNames.themes),
+    );
     final themeTemplateRoute = AppRouter.onGenerateRoute(
       const RouteSettings(
         name: RouteNames.themeTemplateDetail,
@@ -201,7 +260,9 @@ void main() {
         arguments: {'templateUuid': 'l1'},
       ),
     );
-    final loginRoute = AppRouter.onGenerateRoute(const RouteSettings(name: RouteNames.login));
+    final loginRoute = AppRouter.onGenerateRoute(
+      const RouteSettings(name: RouteNames.login),
+    );
 
     expect(projectDetailRoute.settings.name, RouteNames.projectDetail);
     expect(formDetailRoute.settings.name, RouteNames.formDetail);
@@ -218,9 +279,13 @@ void main() {
     expect(conditionApprovalRoute.settings.name, RouteNames.conditionApproval);
     expect(conditionAsyncRoute.settings.name, RouteNames.conditionAsync);
     expect(conditionPresetsRoute.settings.name, RouteNames.conditionPresets);
-    expect(conditionMonitoringRoute.settings.name, RouteNames.conditionMonitoring);
+    expect(
+      conditionMonitoringRoute.settings.name,
+      RouteNames.conditionMonitoring,
+    );
     expect(monitoringRoute.settings.name, RouteNames.conditions);
     expect(projectsRoute.settings.name, RouteNames.projects);
+    expect(searchRoute.settings.name, RouteNames.search);
     expect(themesRoute.settings.name, RouteNames.themes);
     expect(themeTemplateRoute.settings.name, RouteNames.themeTemplateDetail);
     expect(layoutTemplateRoute.settings.name, RouteNames.layoutTemplateDetail);

@@ -1,138 +1,239 @@
-import 'package:flutter/material.dart';
 import 'package:animations/animations.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:formfrontend/core/state/auth_state.dart';
+import 'package:formfrontend/app/router/route_names.dart';
 import 'package:formfrontend/core/config/theme/theme_exports.dart';
-import 'package:formfrontend/features/dashboard/presentation/components/form_layer.dart';
-import 'package:formfrontend/features/dashboard/presentation/components/logic_layer.dart';
-import 'package:formfrontend/features/dashboard/presentation/components/insight_layer.dart';
+import 'package:formfrontend/core/state/auth_state.dart';
 
-typedef _LayerBuilder =
-    Widget Function(BuildContext context, _DashboardScreenState state);
-
-class _LayerDescriptor {
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final _LayerBuilder builder;
-
-  const _LayerDescriptor({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.builder,
-  });
-}
-
-class DashboardScreen extends StatefulWidget {
-  static final ValueNotifier<int> activeLayerNotifier = ValueNotifier<int>(0);
-
+class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
-  @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  int _selectedLayerIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    DashboardScreen.activeLayerNotifier.addListener(_onActiveLayerChanged);
-    _selectedLayerIndex = DashboardScreen.activeLayerNotifier.value;
+  void _navigate(BuildContext context, String routeName) {
+    Navigator.of(context).pushNamed(routeName);
   }
 
-  @override
-  void dispose() {
-    DashboardScreen.activeLayerNotifier.removeListener(_onActiveLayerChanged);
-    _inputController.dispose();
-    super.dispose();
+  Widget _quickAction(
+    BuildContext context,
+    String label,
+    IconData icon,
+    String routeName,
+  ) {
+    return FilledButton.icon(
+      onPressed: () => _navigate(context, routeName),
+      icon: Icon(icon),
+      label: Text(label),
+    );
   }
 
-  void _onActiveLayerChanged() {
-    if (mounted) {
-      setState(() {
-        _selectedLayerIndex = DashboardScreen.activeLayerNotifier.value;
-      });
-    }
-  }
-
-  // Form State
-  final _formKey = GlobalKey<FormState>();
-  final _inputController = TextEditingController();
-  String _transformationRule = 'Pass-through';
-  bool _isCritical = false;
-
-  // Mock Data
-  final List<Map<String, dynamic>> _capturedInputs = [
-    {
-      'timestamp': '12:04:12',
-      'data': 'System awareness baseline active',
-      'rule': 'Log',
-      'type': 'System',
-    },
-    {
-      'timestamp': '12:05:45',
-      'data': 'Node-4 telemetry feed online',
-      'rule': 'Aggregate',
-      'type': 'Network',
-    },
-  ];
-
-  late final List<_LayerDescriptor> _layers = [
-    _LayerDescriptor(
-      title: '1. Form Layer',
-      subtitle: 'Awareness → Data',
-      icon: Icons.input_rounded,
-      builder: (context, state) => FormLayer(
-        formKey: state._formKey,
-        inputController: state._inputController,
-        transformationRule: state._transformationRule,
-        isCritical: state._isCritical,
-        capturedInputs: state._capturedInputs,
-        onRuleChanged: (val) {
-          if (val != null) {
-            setState(() => state._transformationRule = val);
-          }
-        },
-        onCriticalChanged: (val) {
-          setState(() => state._isCritical = val ?? false);
-        },
-        onSubmit: state._submitForm,
-      ),
-    ),
-    _LayerDescriptor(
-      title: '2. Logic Layer',
-      subtitle: 'Interpretation → Observation',
-      icon: Icons.hub_outlined,
-      builder: (context, state) => const LogicLayer(),
-    ),
-    _LayerDescriptor(
-      title: '3. Insight Layer',
-      subtitle: 'Generation → Insight',
-      icon: Icons.auto_graph_outlined,
-      builder: (context, state) => const InsightLayer(),
-    ),
-  ];
-
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _capturedInputs.insert(0, {
-          'timestamp': DateTime.now().toString().substring(11, 19),
-          'data': _inputController.text,
-          'rule': _transformationRule,
-          'type': _isCritical ? 'Critical' : 'Standard',
-        });
-        _inputController.clear();
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Input perceived and transitioned to Data state.'),
+  Widget _gatewayCard({
+    required BuildContext context,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required List<Widget> actions,
+  }) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.charcoal,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(icon, color: AppColors.pureWhite),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(subtitle),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Wrap(spacing: 12, runSpacing: 12, children: actions),
+          ],
         ),
-      );
-    }
+      ),
+    );
+  }
+
+  Widget _gatewayBody(BuildContext context) {
+    final isMobile = AppBreakpoints.isMobile(context);
+    final cards = <Widget>[
+      _gatewayCard(
+        context: context,
+        title: 'Workspace home',
+        subtitle: 'Return to the main workspace surfaces and recent work.',
+        icon: Icons.space_dashboard_outlined,
+        actions: [
+          _quickAction(
+            context,
+            'Search',
+            Icons.search_outlined,
+            RouteNames.search,
+          ),
+          _quickAction(
+            context,
+            'Projects',
+            Icons.folder_outlined,
+            RouteNames.projects,
+          ),
+          _quickAction(
+            context,
+            'Forms',
+            Icons.list_alt_outlined,
+            RouteNames.forms,
+          ),
+        ],
+      ),
+      _gatewayCard(
+        context: context,
+        title: 'Navigation shell',
+        subtitle:
+            'Move between the core content-building surfaces without losing context.',
+        icon: Icons.route_outlined,
+        actions: [
+          _quickAction(
+            context,
+            'Sections',
+            Icons.view_week_outlined,
+            RouteNames.sections,
+          ),
+          _quickAction(
+            context,
+            'Questions',
+            Icons.help_outline,
+            RouteNames.questions,
+          ),
+          _quickAction(
+            context,
+            'Choices',
+            Icons.circle_outlined,
+            RouteNames.choices,
+          ),
+        ],
+      ),
+      _gatewayCard(
+        context: context,
+        title: 'Integrations hub',
+        subtitle:
+            'Enter workflow, schema, and related integration flows from one place.',
+        icon: Icons.integration_instructions_outlined,
+        actions: [
+          _quickAction(
+            context,
+            'Workflow',
+            Icons.merge_type_outlined,
+            RouteNames.workflow,
+          ),
+          _quickAction(
+            context,
+            'Schema',
+            Icons.schema_outlined,
+            RouteNames.schema,
+          ),
+          _quickAction(
+            context,
+            'Metrics',
+            Icons.analytics_outlined,
+            RouteNames.metrics,
+          ),
+        ],
+      ),
+      _gatewayCard(
+        context: context,
+        title: 'Operations panel',
+        subtitle:
+            'Open health, readiness, admin, audit, rate limit, and session tools.',
+        icon: Icons.admin_panel_settings_outlined,
+        actions: [
+          _quickAction(
+            context,
+            'Health',
+            Icons.health_and_safety_outlined,
+            RouteNames.health,
+          ),
+          _quickAction(
+            context,
+            'Readiness',
+            Icons.check_circle_outline,
+            RouteNames.readiness,
+          ),
+          _quickAction(
+            context,
+            'Admin',
+            Icons.admin_panel_settings_outlined,
+            RouteNames.admin,
+          ),
+          _quickAction(
+            context,
+            'Audit logs',
+            Icons.note_alt_outlined,
+            RouteNames.adminAuditLogs,
+          ),
+        ],
+      ),
+    ];
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        Text('Gateway', style: Theme.of(context).textTheme.displaySmall),
+        const SizedBox(height: 12),
+        Text(
+          'Workspace home, navigation shell, integrations hub, and operations panel in one place.',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            Chip(label: Text('Workspace home')),
+            Chip(label: Text('Navigation shell')),
+            Chip(label: Text('Integrations hub')),
+            Chip(label: Text('Operations panel')),
+          ],
+        ),
+        const SizedBox(height: 24),
+        if (isMobile)
+          ...cards.map(
+            (card) => Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: card,
+            ),
+          )
+        else
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final cardWidth = (constraints.maxWidth - 16) / 2;
+              return Wrap(
+                spacing: 16,
+                runSpacing: 16,
+                children: cards
+                    .map((card) => SizedBox(width: cardWidth, child: card))
+                    .toList(),
+              );
+            },
+          ),
+      ],
+    );
   }
 
   @override
@@ -146,12 +247,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
             : Builder(
                 builder: (context) => IconButton(
                   icon: const Icon(Icons.menu),
-                  onPressed: () {
-                    Scaffold.of(context).openDrawer();
-                  },
+                  onPressed: () => Scaffold.of(context).openDrawer(),
                 ),
               ),
-        title: Row(
+        title: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               padding: EdgeInsets.symmetric(
@@ -171,12 +272,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
               ),
             ),
-            SizedBox(width: context.space12),
-            if (!isMobile)
+            if (!isMobile) ...[
+              SizedBox(height: context.space4),
               Text(
-                'From Awareness to Insight',
+                'Gateway home',
+                overflow: TextOverflow.ellipsis,
                 style: context.uiMicro.copyWith(color: AppColors.greyBody),
               ),
+            ],
           ],
         ),
         actions: [
@@ -184,7 +287,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             padding: EdgeInsets.only(right: context.space16),
             child: Center(
               child: Text(
-                'System: Active',
+                'Gateway: Active',
                 style: context.uiMicro.copyWith(color: AppColors.slateMid),
               ),
             ),
@@ -192,92 +295,74 @@ class _DashboardScreenState extends State<DashboardScreen> {
           IconButton(
             icon: const Icon(Icons.logout_rounded),
             tooltip: 'Logout',
-            onPressed: () {
-              context.read<AuthStateNotifier>().logout();
-            },
+            onPressed: () => context.read<AuthStateNotifier>().logout(),
           ),
           SizedBox(width: context.space8),
         ],
       ),
       body: isMobile
-          ? Column(
-              children: [
-                _buildMobileNavBar(),
-                Expanded(child: _buildMainContent()),
-              ],
-            )
-          : _buildMainContent(),
-    );
-  }
-
-
-
-  Widget _buildMobileNavBar() {
-    return Container(
-      color: AppColors.pureWhite,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: List.generate(_layers.length, (index) {
-          final layer = _layers[index];
-          final label = layer.title
-              .split('.')
-              .last
-              .replaceAll('Layer', '')
-              .trim();
-          return _buildMobileNavButton(index, label, layer.icon);
-        }),
-      ),
-    );
-  }
-
-  Widget _buildMobileNavButton(int index, String label, IconData icon) {
-    final isSelected = _selectedLayerIndex == index;
-    return InkWell(
-      onTap: () => setState(() => _selectedLayerIndex = index),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: context.space12),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? AppColors.charcoal : AppColors.greyBody,
-            ),
-            SizedBox(height: context.space4),
-            Text(
-              label,
-              style: context.uiMicro.copyWith(
-                color: isSelected ? AppColors.charcoal : AppColors.greyBody,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ? _gatewayBody(context)
+          : PageTransitionSwitcher(
+              duration: const Duration(milliseconds: 300),
+              transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
+                return FadeThroughTransition(
+                  animation: primaryAnimation,
+                  secondaryAnimation: secondaryAnimation,
+                  child: child,
+                );
+              },
+              child: KeyedSubtree(
+                key: const ValueKey<String>('gateway-home'),
+                child: _gatewayBody(context),
               ),
             ),
-          ],
-        ),
-      ),
+      drawer: isMobile
+          ? null
+          : Drawer(
+              child: SafeArea(
+                child: ListView(
+                  padding: const EdgeInsets.all(12),
+                  children: [
+                    ListTile(
+                      leading: const Icon(Icons.space_dashboard_outlined),
+                      title: const Text('Workspace home'),
+                      onTap: () => _navigate(context, RouteNames.main),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.search_outlined),
+                      title: const Text('Global search'),
+                      onTap: () => _navigate(context, RouteNames.search),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.folder_outlined),
+                      title: const Text('Projects'),
+                      onTap: () => _navigate(context, RouteNames.projects),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.list_alt_outlined),
+                      title: const Text('Forms'),
+                      onTap: () => _navigate(context, RouteNames.forms),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.admin_panel_settings_outlined),
+                      title: const Text('Admin'),
+                      onTap: () => _navigate(context, RouteNames.admin),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.health_and_safety_outlined),
+                      title: const Text('Health'),
+                      onTap: () => _navigate(context, RouteNames.health),
+                    ),
+                    const Divider(),
+                    ListTile(
+                      leading: const Icon(Icons.logout_rounded),
+                      title: const Text('Logout'),
+                      onTap: () => context.read<AuthStateNotifier>().logout(),
+                    ),
+                  ],
+                ),
+              ),
+            ),
     );
-  }
-
-  Widget _buildMainContent() {
-    return PageTransitionSwitcher(
-      duration: const Duration(milliseconds: 300),
-      transitionBuilder: (child, primaryAnimation, secondaryAnimation) {
-        return FadeThroughTransition(
-          animation: primaryAnimation,
-          secondaryAnimation: secondaryAnimation,
-          child: child,
-        );
-      },
-      child: KeyedSubtree(
-        key: ValueKey<int>(_selectedLayerIndex),
-        child: _buildLayerScreen(),
-      ),
-    );
-  }
-
-  Widget _buildLayerScreen() {
-    if (_selectedLayerIndex >= 0 && _selectedLayerIndex < _layers.length) {
-      return _layers[_selectedLayerIndex].builder(context, this);
-    }
-    return const SizedBox.shrink();
   }
 }

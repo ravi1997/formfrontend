@@ -8,6 +8,7 @@ import 'package:formfrontend/features/forms/presentation/form_edit_page.dart';
 import 'package:formfrontend/features/forms/presentation/form_effective_ui_page.dart';
 import 'package:formfrontend/features/forms/presentation/form_versions_page.dart';
 import 'package:formfrontend/features/projects/presentation/project_detail_page.dart';
+import 'package:formfrontend/features/projects/presentation/project_form_page.dart';
 import 'package:formfrontend/features/conditions/presentation/condition_test_page.dart';
 import 'package:formfrontend/features/conditions/presentation/condition_batch_test_page.dart';
 import 'package:formfrontend/features/conditions/presentation/condition_versions_page.dart';
@@ -17,9 +18,12 @@ import 'package:formfrontend/features/conditions/presentation/condition_presets_
 import 'package:formfrontend/features/conditions/presentation/condition_monitoring_page.dart';
 import 'package:formfrontend/features/choices/presentation/choice_edit_page.dart';
 import 'package:formfrontend/features/questions/presentation/question_detail_page.dart';
+import 'package:formfrontend/features/questions/presentation/question_edit_page.dart';
 import 'package:formfrontend/features/questions/presentation/question_versions_page.dart';
 import 'package:formfrontend/features/sections/presentation/section_detail_page.dart';
+import 'package:formfrontend/features/sections/presentation/section_edit_page.dart';
 import 'package:formfrontend/features/sections/presentation/section_versions_page.dart';
+import 'package:formfrontend/features/search/presentation/global_search_page.dart';
 import 'package:formfrontend/features/ui_templates/presentation/template_detail_page.dart';
 
 class AppRouter {
@@ -28,13 +32,30 @@ class AppRouter {
 
     switch (settings.name) {
       case RouteNames.login:
-        return MaterialPageRoute(builder: (_) => const LoginPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const LoginPage(),
+          settings: settings,
+        );
       case RouteNames.register:
-        return MaterialPageRoute(builder: (_) => const RegisterPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const RegisterPage(),
+          settings: settings,
+        );
+      case RouteNames.search:
+        return MaterialPageRoute(
+          builder: (_) => const GlobalSearchPage(),
+          settings: settings,
+        );
       case RouteNames.projectDetail:
         final projectUuid = settings.arguments as String? ?? '';
         return MaterialPageRoute(
           builder: (_) => ProjectDetailPage(projectUuid: projectUuid),
+          settings: settings,
+        );
+      case RouteNames.projectForm:
+        final args = settings.arguments as Map<String, String>? ?? const {};
+        return MaterialPageRoute(
+          builder: (_) => ProjectFormPage(projectUuid: args['projectUuid']),
           settings: settings,
         );
       case RouteNames.choiceEdit:
@@ -50,19 +71,40 @@ class AppRouter {
           settings: settings,
         );
       case RouteNames.conditions:
-        return MaterialPageRoute(builder: (_) => const ConditionTestPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const ConditionTestPage(),
+          settings: settings,
+        );
       case RouteNames.conditionBatchTest:
-        return MaterialPageRoute(builder: (_) => const ConditionBatchTestPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const ConditionBatchTestPage(),
+          settings: settings,
+        );
       case RouteNames.conditionVersions:
-        return MaterialPageRoute(builder: (_) => const ConditionVersionsPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const ConditionVersionsPage(),
+          settings: settings,
+        );
       case RouteNames.conditionApproval:
-        return MaterialPageRoute(builder: (_) => const ConditionApprovalPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const ConditionApprovalPage(),
+          settings: settings,
+        );
       case RouteNames.conditionAsync:
-        return MaterialPageRoute(builder: (_) => const ConditionAsyncPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const ConditionAsyncPage(),
+          settings: settings,
+        );
       case RouteNames.conditionPresets:
-        return MaterialPageRoute(builder: (_) => const ConditionPresetsPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const ConditionPresetsPage(),
+          settings: settings,
+        );
       case RouteNames.conditionMonitoring:
-        return MaterialPageRoute(builder: (_) => const ConditionMonitoringPage(), settings: settings);
+        return MaterialPageRoute(
+          builder: (_) => const ConditionMonitoringPage(),
+          settings: settings,
+        );
       case RouteNames.formDetail:
         final args = settings.arguments as Map<String, String>? ?? const {};
         return MaterialPageRoute(
@@ -109,6 +151,16 @@ class AppRouter {
           ),
           settings: settings,
         );
+      case RouteNames.sectionEdit:
+        final args = settings.arguments as Map<String, String>? ?? const {};
+        return MaterialPageRoute(
+          builder: (_) => SectionEditPage(
+            projectUuid: args['projectUuid'] ?? '',
+            formUuid: args['formUuid'] ?? '',
+            sectionUuid: args['sectionUuid'] ?? '',
+          ),
+          settings: settings,
+        );
       case RouteNames.sectionVersions:
         final args = settings.arguments as Map<String, String>? ?? const {};
         return MaterialPageRoute(
@@ -123,6 +175,17 @@ class AppRouter {
         final args = settings.arguments as Map<String, String>? ?? const {};
         return MaterialPageRoute(
           builder: (_) => QuestionDetailPage(
+            projectUuid: args['projectUuid'] ?? '',
+            formUuid: args['formUuid'] ?? '',
+            sectionUuid: args['sectionUuid'] ?? '',
+            questionUuid: args['questionUuid'] ?? '',
+          ),
+          settings: settings,
+        );
+      case RouteNames.questionEdit:
+        final args = settings.arguments as Map<String, String>? ?? const {};
+        return MaterialPageRoute(
+          builder: (_) => QuestionEditPage(
             projectUuid: args['projectUuid'] ?? '',
             formUuid: args['formUuid'] ?? '',
             sectionUuid: args['sectionUuid'] ?? '',
@@ -183,9 +246,12 @@ class AppRouter {
           builder: (_) => MainShell(initialIndex: mainIndex),
           settings: settings,
         );
-      default:
-        return MaterialPageRoute(builder: (_) => const MainShell(), settings: settings);
     }
+
+    return MaterialPageRoute(
+      builder: (_) => const MainShell(),
+      settings: settings,
+    );
   }
 
   static int _mainIndexFor(String? routeName) {

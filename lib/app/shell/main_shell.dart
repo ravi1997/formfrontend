@@ -42,17 +42,11 @@ class _MainShellState extends State<MainShell> {
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
-    DashboardScreen.activeLayerNotifier.addListener(_onLayerChanged);
   }
 
   @override
   void dispose() {
-    DashboardScreen.activeLayerNotifier.removeListener(_onLayerChanged);
     super.dispose();
-  }
-
-  void _onLayerChanged() {
-    setState(() {});
   }
 
   late final List<Widget> _pages = const [
@@ -87,7 +81,6 @@ class _MainShellState extends State<MainShell> {
     final body = IndexedStack(index: _selectedIndex, children: _pages);
 
     Widget buildDrawerContent() {
-      final activeLayer = DashboardScreen.activeLayerNotifier.value;
       final isDashboardSelected = _selectedIndex == 0;
 
       return SafeArea(
@@ -132,7 +125,7 @@ class _MainShellState extends State<MainShell> {
                       vertical: context.space8,
                     ),
                     child: Text(
-                      'LIFECYCLE LAYERS',
+                      'GATEWAY',
                       style: context.uiMicro.copyWith(
                         color: AppColors.greyMuted,
                         fontWeight: FontWeight.bold,
@@ -140,31 +133,10 @@ class _MainShellState extends State<MainShell> {
                     ),
                   ),
                   _DrawerItem(
-                    icon: Icons.input_rounded,
-                    label: '1. Form Layer',
-                    selected: isDashboardSelected && activeLayer == 0,
-                    onTap: () {
-                      setState(() => _selectedIndex = 0);
-                      DashboardScreen.activeLayerNotifier.value = 0;
-                    },
-                  ),
-                  _DrawerItem(
-                    icon: Icons.hub_outlined,
-                    label: '2. Logic Layer',
-                    selected: isDashboardSelected && activeLayer == 1,
-                    onTap: () {
-                      setState(() => _selectedIndex = 0);
-                      DashboardScreen.activeLayerNotifier.value = 1;
-                    },
-                  ),
-                  _DrawerItem(
-                    icon: Icons.auto_graph_outlined,
-                    label: '3. Insight Layer',
-                    selected: isDashboardSelected && activeLayer == 2,
-                    onTap: () {
-                      setState(() => _selectedIndex = 0);
-                      DashboardScreen.activeLayerNotifier.value = 2;
-                    },
+                    icon: Icons.space_dashboard_outlined,
+                    label: 'Gateway home',
+                    selected: isDashboardSelected,
+                    onTap: () => setState(() => _selectedIndex = 0),
                   ),
                   const Divider(),
                   Padding(
@@ -377,8 +349,8 @@ class _MainShellState extends State<MainShell> {
             )
           : null,
       drawer: isMobile
-          ? null
-          : Drawer(
+        ? null
+        : Drawer(
               child: buildDrawerContent(),
             ),
     );

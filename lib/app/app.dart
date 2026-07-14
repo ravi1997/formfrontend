@@ -15,6 +15,7 @@ import 'package:formfrontend/features/projects/data/projects_api.dart';
 import 'package:formfrontend/features/questions/data/questions_api.dart';
 import 'package:formfrontend/features/sections/data/sections_api.dart';
 import 'package:formfrontend/features/responses/data/responses_api.dart';
+import 'package:formfrontend/features/search/data/search_api.dart';
 import 'package:formfrontend/features/workflows/data/workflows_api.dart';
 import 'package:formfrontend/features/system/data/system_api.dart';
 import 'package:formfrontend/features/ui_templates/data/ui_templates_api.dart';
@@ -77,6 +78,9 @@ class App extends StatelessWidget {
         ),
         ProxyProvider<ApiClient, ResponsesApi>(
           update: (context, client, previous) => ResponsesApi(client),
+        ),
+        ProxyProvider<ApiClient, SearchApi>(
+          update: (context, client, previous) => SearchApi(client),
         ),
         ProxyProvider<ApiClient, SystemApi>(
           update: (context, client, previous) => SystemApi(client),

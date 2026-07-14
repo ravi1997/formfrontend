@@ -6,6 +6,7 @@ class ApiEndpoints {
   static const String ready = '/ready';
   static const String metrics = '/metrics';
   static const String echoForm = '/schemas/echo-form';
+  static const String search = '/search';
 
   // Auth
   static const String register = '/auth/register';
@@ -26,41 +27,41 @@ class ApiEndpoints {
   static const String configHealth = '/auth/admin/config/health';
 
   // Projects
-  static const String projects = '/projects';
-  static String projectDetail(String projectUuid) => '/projects/$projectUuid';
-  static String projectVersions(String projectUuid) => '/projects/$projectUuid/versions';
-  static String projectVersionDetail(String projectUuid, String versionUuid) => '/projects/$projectUuid/versions/$versionUuid';
+  static const String projects = '/api/v1/projects';
+  static String projectDetail(String projectUuid) => '/api/v1/projects/$projectUuid';
+  static String projectVersions(String projectUuid) => '/api/v1/projects/$projectUuid/versions';
+  static String projectVersionDetail(String projectUuid, String versionUuid) => '/api/v1/projects/$projectUuid/versions/$versionUuid';
 
   // Forms
-  static String forms(String projectUuid) => '/projects/$projectUuid/forms';
-  static String formDetail(String projectUuid, String formUuid) => '/projects/$projectUuid/forms/$formUuid';
-  static String formVersions(String projectUuid, String formUuid) => '/projects/$projectUuid/forms/$formUuid/versions';
-  static String formVersionDetail(String projectUuid, String formUuid, String versionUuid) => '/projects/$projectUuid/forms/$formUuid/versions/$versionUuid';
-  static String submitFormWorkflow(String projectUuid, String formUuid) => '/projects/$projectUuid/forms/$formUuid/workflow/submit';
-  static String reviewFormWorkflow(String projectUuid, String formUuid) => '/projects/$projectUuid/forms/$formUuid/workflow/review';
-  static String approveFormWorkflow(String projectUuid, String formUuid) => '/projects/$projectUuid/forms/$formUuid/workflow/approve';
-  static String effectiveUi(String projectUuid, String formUuid) => '/projects/$projectUuid/forms/$formUuid/ui/effective';
+  static String forms(String projectUuid) => '/api/v1/projects/$projectUuid/forms';
+  static String formDetail(String projectUuid, String formUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid';
+  static String formVersions(String projectUuid, String formUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/versions';
+  static String formVersionDetail(String projectUuid, String formUuid, String versionUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/versions/$versionUuid';
+  static String submitFormWorkflow(String projectUuid, String formUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/workflow/submit';
+  static String reviewFormWorkflow(String projectUuid, String formUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/workflow/review';
+  static String approveFormWorkflow(String projectUuid, String formUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/workflow/approve';
+  static String effectiveUi(String projectUuid, String formUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/ui/effective';
 
   // Sections
-  static String sections(String projectUuid, String formUuid) => '/projects/$projectUuid/forms/$formUuid/sections';
-  static String sectionDetail(String projectUuid, String formUuid, String sectionUuid) => '/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid';
-  static String sectionVersions(String projectUuid, String formUuid, String sectionUuid) => '/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/versions';
-  static String sectionVersionDetail(String projectUuid, String formUuid, String sectionUuid, String versionUuid) => '/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/versions/$versionUuid';
+  static String sections(String projectUuid, String formUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/sections';
+  static String sectionDetail(String projectUuid, String formUuid, String sectionUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid';
+  static String sectionVersions(String projectUuid, String formUuid, String sectionUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/versions';
+  static String sectionVersionDetail(String projectUuid, String formUuid, String sectionUuid, String versionUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/versions/$versionUuid';
 
   // Questions
-  static String questions(String projectUuid, String formUuid, String sectionUuid) => '/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions';
-  static String questionDetail(String projectUuid, String formUuid, String sectionUuid, String questionUuid) => '/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions/$questionUuid';
-  static String questionVersions(String projectUuid, String formUuid, String sectionUuid, String questionUuid) => '/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions/$questionUuid/versions';
-  static String questionVersionDetail(String projectUuid, String formUuid, String sectionUuid, String questionUuid, String versionUuid) => '/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions/$questionUuid/versions/$versionUuid';
+  static String questions(String projectUuid, String formUuid, String sectionUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions';
+  static String questionDetail(String projectUuid, String formUuid, String sectionUuid, String questionUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions/$questionUuid';
+  static String questionVersions(String projectUuid, String formUuid, String sectionUuid, String questionUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions/$questionUuid/versions';
+  static String questionVersionDetail(String projectUuid, String formUuid, String sectionUuid, String questionUuid, String versionUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions/$questionUuid/versions/$versionUuid';
 
   // Choices
-  static String choices(String projectUuid, String formUuid, String sectionUuid, String questionUuid) => '/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions/$questionUuid/choices';
-  static String choiceDetail(String projectUuid, String formUuid, String sectionUuid, String questionUuid, String choiceUuid) => '/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions/$questionUuid/choices/$choiceUuid';
+  static String choices(String projectUuid, String formUuid, String sectionUuid, String questionUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions/$questionUuid/choices';
+  static String choiceDetail(String projectUuid, String formUuid, String sectionUuid, String questionUuid, String choiceUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions/$questionUuid/choices/$choiceUuid';
 
   // Actions
-  static String triggerAction(String projectUuid, String formUuid, String sectionUuid, String questionUuid, String actionId) => '/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions/$questionUuid/actions/$actionId/trigger';
-  static String actionExecutions(String projectUuid, String formUuid, String responseUuid) => '/projects/$projectUuid/forms/$formUuid/responses/$responseUuid/action-executions';
-  static String publicResponses(String projectUuid, String formUuid) => '/public/projects/$projectUuid/forms/$formUuid/responses';
+  static String triggerAction(String projectUuid, String formUuid, String sectionUuid, String questionUuid, String actionId) => '/api/v1/projects/$projectUuid/forms/$formUuid/sections/$sectionUuid/questions/$questionUuid/actions/$actionId/trigger';
+  static String actionExecutions(String projectUuid, String formUuid, String responseUuid) => '/api/v1/projects/$projectUuid/forms/$formUuid/responses/$responseUuid/action-executions';
+  static String publicResponses(String projectUuid, String formUuid) => '/api/v1/public/projects/$projectUuid/forms/$formUuid/responses';
 
   // Conditions
   static const String conditionsMetadata = '/conditions/metadata';

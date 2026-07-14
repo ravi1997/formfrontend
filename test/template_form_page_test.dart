@@ -4,10 +4,9 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:formfrontend/core/api/api_client.dart';
-import 'package:formfrontend/core/api/api_result.dart';
 import 'package:formfrontend/core/storage/secure_token_storage.dart';
 import 'package:formfrontend/features/ui_templates/data/ui_templates_api.dart';
-import 'package:formfrontend/features/ui_templates/presentation/template_detail_page.dart';
+import 'package:formfrontend/features/ui_templates/presentation/template_form_page.dart';
 
 class _InMemorySecureStorage extends FlutterSecureStorage {
   final Map<String, String> _values = {};
@@ -63,28 +62,10 @@ final _apiClient = ApiClient(
 
 class _FakeUiTemplatesApi extends UiTemplatesApi {
   _FakeUiTemplatesApi() : super(_apiClient);
-
-  String? publishedRevision;
-
-  @override
-  Future<ApiResult<Map<String, dynamic>>> getThemeTemplate(String templateUuid) async {
-    return ApiResult.success({
-      'uuid': templateUuid,
-      'name': 'Theme Template',
-      'revision_uuid': 'theme-rev-1',
-      'status': 'draft',
-    });
-  }
-
-  @override
-  Future<ApiResult<Map<String, dynamic>>> publishThemeRevision(String templateUuid, String revisionUuid) async {
-    publishedRevision = revisionUuid;
-    return ApiResult.success({'uuid': templateUuid, 'revision_uuid': revisionUuid});
-  }
 }
 
 void main() {
-  testWidgets('Template detail shows publish action', (tester) async {
+  testWidgets('Template form creates backend-shaped payload', (tester) async {
     await dotenv.load(fileName: 'assets/.env');
     final api = _FakeUiTemplatesApi();
 
@@ -92,20 +73,16 @@ void main() {
       Provider<UiTemplatesApi>.value(
         value: api,
         child: const MaterialApp(
-          home: TemplateDetailPage.theme(templateUuid: 'tmpl-1'),
+          home: TemplateFormPage(
+            isThemeTemplate: true,
+          ),
         ),
       ),
     );
 
     await tester.pump();
 
-    expect(find.text('Theme Template Detail'), findsOneWidget);
-    expect(find.text('Publish Current Revision'), findsOneWidget);
-
-    await tester.tap(find.text('Publish Current Revision'));
-    await tester.pump();
-
-    expect(api.publishedRevision, 'theme-rev-1');
-    expect(find.text('Published'), findsOneWidget);
+    expect(find.text('Create Theme Template'), findsOneWidget);
+    expect(find.byType(TextField), findsAtLeastNWidgets(5));
   });
 }

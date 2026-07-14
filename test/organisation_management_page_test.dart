@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:formfrontend/core/api/api_client.dart';
 import 'package:formfrontend/core/api/api_result.dart';
 import 'package:formfrontend/core/storage/secure_token_storage.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:formfrontend/features/admin/data/admin_api.dart';
 import 'package:formfrontend/features/admin/presentation/organisation_management_page.dart';
 
@@ -57,7 +57,9 @@ class _InMemorySecureStorage extends FlutterSecureStorage {
   }
 }
 
-final _apiClient = ApiClient(tokenStorage: SecureTokenStorage(storage: _InMemorySecureStorage()));
+final _apiClient = ApiClient(
+  tokenStorage: SecureTokenStorage(storage: _InMemorySecureStorage()),
+);
 
 class _FakeAdminApi extends AdminApi {
   _FakeAdminApi() : super(_apiClient);
@@ -97,7 +99,7 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(find.text('Organisation Management'), findsOneWidget);
     expect(find.text('Organisation Summary'), findsOneWidget);

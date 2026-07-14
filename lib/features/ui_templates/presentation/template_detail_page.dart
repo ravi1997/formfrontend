@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:formfrontend/core/api/api_result.dart';
 import 'package:formfrontend/features/ui_templates/data/ui_templates_api.dart';
 
 class TemplateDetailPage extends StatefulWidget {
@@ -28,6 +29,7 @@ class TemplateDetailPage extends StatefulWidget {
 
 class _TemplateDetailPageState extends State<TemplateDetailPage> {
   late Future<dynamic> _future;
+  ApiResult<Map<String, dynamic>>? _publishResult;
 
   @override
   void initState() {
@@ -53,6 +55,9 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
               final name = data['name']?.toString() ?? data['title']?.toString() ?? 'Unnamed template';
               final version = data['revision']?.toString() ?? data['version']?.toString() ?? 'Unknown';
               final status = data['status']?.toString() ?? 'Unknown';
+              final revisionUuid = data['revision_uuid']?.toString() ??
+                  data['current_revision_uuid']?.toString() ??
+                  data['revision']?.toString();
               final kind = widget.isThemeTemplate ? 'Theme' : 'Layout';
 
               return ListView(
@@ -69,6 +74,29 @@ class _TemplateDetailPageState extends State<TemplateDetailPage> {
                           Text('Name: $name'),
                           Text('Version: $version'),
                           Text('Status: $status'),
+                          const SizedBox(height: 12),
+                          ElevatedButton(
+                            onPressed: revisionUuid == null || revisionUuid.isEmpty
+                                ? null
+                                : () async {
+                                    final api = context.read<UiTemplatesApi>();
+                                    final result = widget.isThemeTemplate
+                                        ? await api.publishThemeRevision(widget.templateUuid, revisionUuid)
+                                        : await api.publishLayoutRevision(widget.templateUuid, revisionUuid);
+                                    if (!mounted) return;
+                                    setState(() => _publishResult = result);
+                                  },
+                            child: const Text('Publish Current Revision'),
+                          ),
+                          if (_publishResult != null) ...[
+                            const SizedBox(height: 8),
+                            Text(
+                              _publishResult!.when(
+                                success: (value) => 'Published',
+                                failure: (error) => error.message,
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),

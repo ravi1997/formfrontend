@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:formfrontend/app/router/route_names.dart';
 import 'package:formfrontend/core/api/api_result.dart';
 import 'package:formfrontend/features/ui_templates/data/ui_templates_api.dart';
 
@@ -22,7 +23,15 @@ class _LayoutTemplatesPageState extends State<LayoutTemplatesPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Layout Templates')),
+      appBar: AppBar(
+        title: const Text('Layout Templates'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () => Navigator.of(context).pushNamed(RouteNames.layoutTemplateEdit),
+          ),
+        ],
+      ),
       body: FutureBuilder<ApiResult<List<dynamic>>>(
         future: _future,
         builder: (context, snapshot) {

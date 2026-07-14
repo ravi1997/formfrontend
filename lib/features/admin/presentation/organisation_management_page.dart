@@ -1,6 +1,6 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:formfrontend/app/router/route_names.dart';
 import 'package:formfrontend/core/config/theme/theme_exports.dart';
 import 'package:formfrontend/features/admin/data/admin_api.dart';
 
@@ -17,8 +17,6 @@ class _OrganisationManagementPageState extends State<OrganisationManagementPage>
   String? _errorMessage;
   String _searchQuery = '';
 
-  final _nameController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
@@ -29,14 +27,7 @@ class _OrganisationManagementPageState extends State<OrganisationManagementPage>
 
   @override
   void dispose() {
-    _nameController.dispose();
     super.dispose();
-  }
-
-  String _generateUuid() {
-    final random = Random();
-    final hex = List.generate(32, (index) => random.nextInt(16).toRadixString(16)).join();
-    return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
   }
 
   Future<void> _fetchOrganizations() async {
@@ -68,77 +59,6 @@ class _OrganisationManagementPageState extends State<OrganisationManagementPage>
           _errorMessage = error.message;
           _isLoading = false;
         });
-      },
-    );
-  }
-
-  Future<void> _createOrg() async {
-    final name = _nameController.text.trim();
-    if (name.isEmpty) return;
-
-    final uuid = _generateUuid();
-    final result = await context.read<AdminApi>().createOrganization({
-      'uuid': uuid,
-      'name': name,
-      'status': 'active',
-      'admins': [],
-    });
-
-    if (!mounted) return;
-    result.when(
-      success: (_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Organisation created successfully.')),
-        );
-        _fetchOrganizations();
-      },
-      failure: (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed: ${error.message}'), backgroundColor: Colors.red[800]),
-        );
-      },
-    );
-  }
-
-  Future<void> _updateOrgName(String uuid, String currentName) async {
-    _nameController.text = currentName;
-    final newName = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Edit Organisation Name'),
-        content: TextField(
-          controller: _nameController,
-          decoration: const InputDecoration(labelText: 'Name'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, _nameController.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-
-    if (newName == null || newName.isEmpty || !mounted) return;
-
-    final result = await context.read<AdminApi>().updateOrganization(uuid, {'name': newName});
-    if (!mounted) return;
-
-    result.when(
-      success: (_) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Organisation name updated.')),
-        );
-        _fetchOrganizations();
-      },
-      failure: (error) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Update failed: ${error.message}'), backgroundColor: Colors.red[800]),
-        );
       },
     );
   }
@@ -183,32 +103,9 @@ class _OrganisationManagementPageState extends State<OrganisationManagementPage>
   }
 
   void _showCreateDialog() {
-    _nameController.clear();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Create Organisation'),
-        content: TextField(
-          controller: _nameController,
-          decoration: const InputDecoration(
-            labelText: 'Organisation Name',
-            hintText: 'e.g. Wayne Enterprises',
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _createOrg();
-            },
-            child: const Text('Create'),
-          ),
-        ],
-      ),
+    Navigator.of(context).pushNamed(
+      RouteNames.organisationEdit,
+      arguments: const {},
     );
   }
 
@@ -401,7 +298,10 @@ class _OrganisationManagementPageState extends State<OrganisationManagementPage>
                                       PopupMenuButton<String>(
                                         onSelected: (value) {
                                           if (value == 'edit') {
-                                            _updateOrgName(uuid, name);
+                                            Navigator.of(context).pushNamed(
+                                              RouteNames.organisationEdit,
+                                              arguments: {'organizationUuid': uuid},
+                                            );
                                           } else if (value == 'delete') {
                                             _deleteOrg(uuid);
                                           }

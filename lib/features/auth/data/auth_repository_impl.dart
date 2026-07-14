@@ -89,14 +89,18 @@ class AuthRepositoryImpl implements AuthRepository {
     return result.when(
       success: (data) {
         final sessionsValue = data['sessions'];
-        final rawSessions = sessionsValue is List
-            ? sessionsValue.cast<dynamic>()
-            : sessionsValue is Map<String, dynamic>
-                ? ApiResponseParsers.parseList(sessionsValue)
-                : sessionsValue is Map
-                    ? ApiResponseParsers.parseList(Map<String, dynamic>.from(sessionsValue))
-                    : const <dynamic>[];
-        final list = rawSessions.map((e) => SessionInfo.fromJson(e as Map<String, dynamic>)).toList();
+        List<dynamic> rawSessions;
+        if (sessionsValue is List) {
+          rawSessions = sessionsValue;
+        } else if (sessionsValue is Map) {
+          rawSessions = ApiResponseParsers.parseList(sessionsValue);
+        } else {
+          rawSessions = [];
+        }
+        final list = rawSessions.map((e) {
+          final map = e is Map ? Map<String, dynamic>.from(e) : <String, dynamic>{};
+          return SessionInfo.fromJson(map);
+        }).toList();
         return ApiResult.success(list);
       },
       failure: (error) => ApiResult.failure(error),
